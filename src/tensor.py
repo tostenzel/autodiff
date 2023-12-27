@@ -1,3 +1,12 @@
+"""Contain the tensor class that can be used for building neural networks with forward and backward pass.
+
+The module contains the "high-level ops". These are syntax sugar and built on top of the "mid-level ops" containing the
+the functions with forward and backward passes in Function.function which is build on top of the "low-level ops"
+defining the numpy backend with the most basic operations in data.TensorData.
+
+The high-level ops support many things that you could expect from a tensor library.
+
+"""
 # inspired by https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
 from __future__ import annotations
 import time
@@ -250,7 +259,7 @@ class Tensor:
     def avg_pool2d(self, kernel_size=(2,2), stride=None, dilation=1): return avg_pool2d(self, kernel_size, stride, dilation)
     def max_pool2d(self, kernel_size=(2,2), stride=None, dilation=1): return max_pool2d(self, kernel_size, stride, dilation)
 
-    wino = int(getenv("WINO", "0"))
+    wino = int(getenv("WINO", "0")) # no winograd convolution
     def conv2d(self, weight:Tensor, bias:Optional[Tensor]=None, groups=1, stride=1, dilation=1, padding=0) -> Tensor:
         return conv2d(self, weight, bias, groups, stride, dilation, padding)
     
