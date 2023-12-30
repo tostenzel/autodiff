@@ -8,8 +8,8 @@ sys.path.append(project_root)
 import gzip
 import numpy as np
 
-from src import Tensor
-from src.optim import optimizer
+from edugrad import Tensor
+from edugrad.optim import optimizer
 
 def fetch_mnist(for_convolution=True):
   parse = lambda file: np.frombuffer(gzip.open(file).read(), dtype=np.uint8).copy()

@@ -11,9 +11,9 @@ All these functions are applied to and return TensorData objects that can be cal
 """
 import math
 from typing import Tuple, Optional, cast
-from src.helpers import argsort, DType, shape_int
-from src.ops import UnaryOps, BinaryOps, TernaryOps, ReduceOps
-from src.data import TensorData
+from edugrad.helpers import argsort, DType, shape_int
+from edugrad.ops import UnaryOps, BinaryOps, TernaryOps, ReduceOps
+from edugrad.data import TensorData
 
 from typing import Type
 
@@ -79,7 +79,7 @@ class Function:
         Returns:
             Tensor: The result of applying the function.
         """
-        from src.tensor import Tensor
+        from edugrad.tensor import Tensor
         # Create a context (an instance of the function) for the computation
         ctx = fxn(*x)
         # Compute the forward pass

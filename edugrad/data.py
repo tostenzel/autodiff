@@ -13,8 +13,8 @@ If you would like to use another backend for storing and computing data, it woul
 """
 from typing import Tuple
 import numpy as np
-from src.ops import UnaryOps, BinaryOps, TernaryOps, ReduceOps, LoadOps   # consider reading the docs there
-from src.helpers import DType, dtypes, DEBUG
+from edugrad.ops import UnaryOps, BinaryOps, TernaryOps, ReduceOps, LoadOps   # consider reading the docs there
+from edugrad.helpers import DType, dtypes, DEBUG
 
 
 class TensorData:

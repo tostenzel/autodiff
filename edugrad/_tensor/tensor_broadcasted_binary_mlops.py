@@ -4,14 +4,14 @@ from typing import Tuple, Union
 
 import math
 
-from src.helpers import dtypes
-import src.function as function
+from edugrad.helpers import dtypes
+import edugrad.function as function
 
 
 # broadcasted binary mlops
 
 def _broadcasted(tensor: 'Tensor', y:Union['Tensor', float], reverse:bool=False) -> Tuple['Tensor', 'Tensor']:
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     x: Tensor = tensor
     if not isinstance(y, Tensor):
         if 0 in x.shape: return x, x.full_like(y)
@@ -30,34 +30,34 @@ def _broadcasted(tensor: 'Tensor', y:Union['Tensor', float], reverse:bool=False)
     return (x, y)
 
 def _to_float(tensor: 'Tensor', x:Union['Tensor', float]):
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     return x.data.base.op.arg if isinstance(x, Tensor) and x.data.is_unrealized_contiguous_const() \
         and not x.requires_grad and tensor._broadcasted(x)[0].shape == tensor.shape else x
 
 def add(tensor: 'Tensor', x:Union['Tensor', float], reverse=False) -> 'Tensor':
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     x = tensor._to_float(x)
     return function.Add.apply(*tensor._broadcasted(x, reverse)) if x.__class__ is Tensor or x else tensor
 
 def sub(tensor: 'Tensor', x:Union['Tensor', float], reverse=False) -> 'Tensor':
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     x = tensor._to_float(x)
     return function.Sub.apply(*tensor._broadcasted(x, reverse)) if x.__class__ is Tensor or x else (-tensor if reverse else tensor)
 
 def mul(tensor: 'Tensor', x:Union['Tensor', float], reverse=False) -> 'Tensor':
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     x = tensor._to_float(x)
     if x.__class__ is not Tensor and x == 0.0: return function.Zero.apply(tensor)
     if x.__class__ is not Tensor and x == -1.0: return -tensor
     return function.Mul.apply(*tensor._broadcasted(x, reverse)) if x.__class__ is Tensor or x != 1.0 else tensor
 
 def div(tensor: 'Tensor', x:Union['Tensor', float], reverse=False) -> 'Tensor':
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     x = tensor._to_float(x)
     return function.Div.apply(*tensor._broadcasted(x, reverse)) if x.__class__ is Tensor or reverse or not x or not dtypes.is_float(tensor.dtype) else tensor.mul(1/x)
 
 def pow(tensor: 'Tensor', x:Union['Tensor', float], reverse=False) -> 'Tensor':
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     x = tensor._to_float(x)
     if x.__class__ is not Tensor and not reverse:
         # simple pow identities

@@ -87,7 +87,7 @@ def backward(tensor: 'Tensor') -> 'Tensor':
         AssertionError: If the tensor is not a scalar.
 
     """
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
 
     assert tensor.shape == tuple(), "Backward only for scalar tensors."
 

@@ -13,22 +13,22 @@ import time
 from typing import List, Tuple, Optional, ClassVar, Union, Sequence, Any
 import numpy as np
 
-from src.helpers import getenv, DEBUG, flatten, DType, dtypes, prod, all_int, round_up, shape_int
-from src.data import TensorData
-from src.ops import LoadOps
-from src.function import Function
-import src.function as function
+from edugrad.helpers import getenv, DEBUG, flatten, DType, dtypes, prod, all_int, round_up, shape_int
+from edugrad.data import TensorData
+from edugrad.ops import LoadOps
+from edugrad.function import Function
+import edugrad.function as function
 
-from src.autograd import backward, collect_backward_graph
-from src._tensor.tensor_create import _loadop, empty, manual_seed, rand
-from src._tensor.tensor_create import randn, randint, normal, uniform, scaled_uniform
-from src._tensor.tensor_create import full, zeros, ones, arange, eye, full_like, zeros_like, ones_like
-from src._tensor.tensor_combine_segment import cat, stack, repeat, chunk
-from src._tensor.tensor_reshape import reshape, expand, permute, flip, shrink, pad, pad2d, transpose, flatten, squeeze, unsqueeze
-from src._tensor.tensor_nn import _pool, avg_pool2d, max_pool2d, conv2d, linear, binary_crossentropy, binary_crossentropy_logits, sparse_categorical_crossentropy
-from src._tensor.tensor_index_slice import __getitem__, __setitem__, slice, gather
-from src._tensor.tensor_broadcasted_binary_mlops import _broadcasted, _to_float, add, sub, mul, div, pow, matmul, maximum, minimum, where
-from src._tensor.tensor_reduce import _reduce, tsum, tmax, tmin, mean, std, _softmax, softmax, log_softmax, argmax, argmin
+from edugrad.autograd import backward, collect_backward_graph
+from edugrad._tensor.tensor_create import _loadop, empty, manual_seed, rand
+from edugrad._tensor.tensor_create import randn, randint, normal, uniform, scaled_uniform
+from edugrad._tensor.tensor_create import full, zeros, ones, arange, eye, full_like, zeros_like, ones_like
+from edugrad._tensor.tensor_combine_segment import cat, stack, repeat, chunk
+from edugrad._tensor.tensor_reshape import reshape, expand, permute, flip, shrink, pad, pad2d, transpose, flatten, squeeze, unsqueeze
+from edugrad._tensor.tensor_nn import _pool, avg_pool2d, max_pool2d, conv2d, linear, binary_crossentropy, binary_crossentropy_logits, sparse_categorical_crossentropy
+from edugrad._tensor.tensor_index_slice import __getitem__, __setitem__, slice, gather
+from edugrad._tensor.tensor_broadcasted_binary_mlops import _broadcasted, _to_float, add, sub, mul, div, pow, matmul, maximum, minimum, where
+from edugrad._tensor.tensor_reduce import _reduce, tsum, tmax, tmin, mean, std, _softmax, softmax, log_softmax, argmax, argmin
 
 
 class Tensor:

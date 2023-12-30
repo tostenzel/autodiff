@@ -7,8 +7,8 @@ Conceptual explanations: https://www.tobiasstenzel.com/blog/2023/dl-optimization
 
 """
 from typing import List
-from src.helpers import dedup
-from src.tensor import Tensor
+from edugrad.helpers import dedup
+from edugrad.tensor import Tensor
 
 
 class Optimizer:

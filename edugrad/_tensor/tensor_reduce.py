@@ -3,9 +3,9 @@
 from __future__ import annotations
 from typing import List, Tuple, Type, Optional, Union
 
-from src.helpers import dtypes, prod, all_int
-from src.function import Function
-import src.function as function
+from edugrad.helpers import dtypes, prod, all_int
+from edugrad.function import Function
+import edugrad.function as function
 
 # reduce ops
 
@@ -25,7 +25,7 @@ def _reduce(self, fxn: Type[Function], axis: Optional[Union[int, Tuple[int, ...]
     Returns:
         Tensor: The result of the reduction operation.
     """
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     # Normalize the axis indices and compute the new shape after reduction.
     axis_ = list(range(len(self.shape))) if axis is None else ([axis] if isinstance(axis, int) else list(axis))
     axis_ = [x if x >= 0 else x + len(self.shape) for x in axis_]
@@ -95,7 +95,7 @@ def log_softmax(tensor: 'Tensor', axis):
 
 def argmax(tensor: 'Tensor', axis=None, keepdim=False):
     """Returns the indices of the maximum values along an axis."""
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
     if axis is None:
         idx = (tensor == tensor.max(axis)) * Tensor.arange(prod(tensor.shape)-1, -1, -1, dtype=dtypes.int32, requires_grad=False).reshape(tensor.shape)
         return prod(tensor.shape) - idx.max() - 1

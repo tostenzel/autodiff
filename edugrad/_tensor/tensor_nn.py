@@ -4,7 +4,7 @@ from __future__ import annotations
 import math
 from typing import Tuple, Optional, Union
 
-from src.helpers import make_pair, flatten, dtypes, all_int, shape_int
+from edugrad.helpers import make_pair, flatten, dtypes, all_int, shape_int
 
 
 # processing ops
@@ -142,7 +142,7 @@ def conv2d(tensor: 'Tensor', weight: 'Tensor', bias: Optional['Tensor'] = None, 
           element-wise multiplication with the weight tensor, and a summation reduction.
         - If a bias tensor is provided, it is added to the result after convolution.
     """
-    from src.tensor import Tensor
+    from edugrad.tensor import Tensor
 
     # Extract batch size and input/output channels from tensor and weight shapes
     (bs, cin_), (cout, cin), HW = tensor.shape[:2], weight.shape[:2], weight.shape[2:]

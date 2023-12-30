@@ -1,9 +1,9 @@
 from __future__ import annotations
 from typing import Tuple, Optional, Union, List
 
-from src.helpers import argfix, prod, shape_int
+from edugrad.helpers import argfix, prod, shape_int
 
-import src.function as function
+import edugrad.function as function
 
 
 # movement mlops
