@@ -2,7 +2,7 @@ from __future__ import annotations
 import time, math
 from typing import Tuple, Optional
 
-from src.helpers import argfix, DType, prod, shape_int
+from src.helpers import argfix, DType, prod, shape_int, dtypes
 from src.data import TensorData
 from src.ops import LoadOps
 
