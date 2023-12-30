@@ -3,6 +3,8 @@
 This module provides a set of optimizer classes for updating the parameters of a neural network model
 in response to the gradients computed during backpropagation.
 
+Conceptual explanations: https://www.tobiasstenzel.com/blog/2023/dl-optimization/
+
 """
 from typing import List
 from src.helpers import dedup
@@ -19,6 +21,7 @@ class Optimizer:
         params (List[Tensor]): List of parameters to be optimized.
         learning_rate (Tensor): Learning rate for the optimizer.
         buffers (List[Tensor]): Tensors without gradient requirement, typically used for internal states of the optimizer.
+
     """
     def __init__(self, params: List[Tensor], lr: float):
         # Ensure all parameters are set to require gradients if not already specified
@@ -46,23 +49,32 @@ class Optimizer:
 
 
 class SGD(Optimizer):
-    """Stochastic Gradient Descent (SGD) optimizer.
+    """
+    Stochastic Gradient Descent (SGD) optimizer.
 
     This optimizer updates model parameters by moving them in the opposite direction of their gradients,
     scaled by the learning rate. Optional momentum and weight decay can be applied.
 
-    The update rule for a parameter \( p \) with gradient \( g \) is:
-    \( p = p - lr \times (g + weight\_decay \times p) \)
+    The basic update rule for a parameter p with gradient g is:
+    - p = p - lr * (g + weight_decay * p)
 
     If momentum is used, the update rule becomes:
-    \( v = momentum \times v + g \)
-    \( p = p - lr \times v \)
+    - v = momentum * v + g
+    - p = p - lr * v
+    If Nesterov momentum is used, it slightly modifies the update rule.
 
     Attributes:
-        momentum: Momentum factor.
-        weight_decay: Weight decay.
-        nesterov: Whether to use Nesterov momentum.
-        buffer: Buffer storing the momentum values.
+        momentum (float): Momentum factor.
+        weight_decay (float): Weight decay for regularization.
+        nesterov (bool): Whether to use Nesterov momentum.
+        buffer (List[Tensor]): Buffer storing the momentum values for each parameter.
+
+    Args:
+        params (List[Tensor]): List of parameters to optimize.
+        lr (float, optional): Learning rate.
+        momentum (int, optional): Momentum factor.
+        weight_decay (float, optional): Weight decay coefficient.
+        nesterov (bool, optional): Whether to use Nesterov momentum.
 
     """
     def __init__(self, params: List[Tensor], lr: float=0.001, momentum: int=0, weight_decay: float=0.0, nesterov: bool=False):
@@ -78,6 +90,8 @@ class SGD(Optimizer):
         """Performs a single optimization step.
 
         Updates the parameters based on the gradients, learning rate, momentum, and weight decay.
+        If Nesterov momentum is used, it modifies the update accordingly.
+
         """
         for i, t in enumerate(self.params):
             assert t.grad is not None
@@ -90,47 +104,54 @@ class SGD(Optimizer):
 
 def AdamW(params: List[Tensor], lr=0.001, b1=0.9, b2=0.999, eps=1e-8, wd=0.01):
     """Variant of the Adam optimizer that includes weight decay."""
-    return LAMB(params, lr, b1, b2, eps, wd, adam=True)
+    return Adam(params, lr, b1, b2, eps, wd)
 
 
-def Adam(params: List[Tensor], lr=0.001, b1=0.9, b2=0.999, eps=1e-8):
-    """Standard Adam optimizer without weight decay."""
-    return LAMB(params, lr, b1, b2, eps, 0.0, adam=True)
+class Adam(Optimizer):
+    """Adam optimizer for gradient-based optimization of stochastic objective functions.
 
-
-class LAMB(Optimizer):
-    """LAMB (Layer-wise Adaptive Moments optimizer for Batch training) optimizer.
-
-    This optimizer combines the LARS (Layer-wise Adaptive Rate Scaling) algorithm with Adam or AdamW.
-    It adjusts the learning rate for each layer individually, making it effective for training large models.
-
-    The update rule is:
-    \( m = \beta_1 \times m + (1 - \beta_1) \times g \)
-    \( v = \beta_2 \times v + (1 - \beta_2) \times g^2 \)
-    \( m\_hat = m / (1 - \beta_1^t) \)
-    \( v\_hat = v / (1 - \beta_2^t) \)
-    \( update = (m\_hat / (\sqrt{v\_hat} + \epsilon)) + wd \times p \)
-    \( trust\_ratio = r1 / r2 \) (if not Adam)
-    \( p = p - lr \times trust\_ratio \times update \)
+    Adam is an algorithm for first-order gradient-based optimization of stochastic
+    objective functions, based on adaptive estimates of lower-order moments.
+    
+    The update rule for each parameter is:
+    - Update biased first moment estimate: m = beta1 * m + (1 - beta1) * g
+    - Update biased second moment estimate: v = beta2 * v + (1 - beta2) * g^2
+    - Compute bias-corrected first moment estimate: m_hat = m / (1 - beta1^t)
+    - Compute bias-corrected second moment estimate: v_hat = v / (1 - beta2^t)
+    - Update parameters: p = p - lr * m_hat / (sqrt(v_hat) + epsilon)
+    
+    Where:
+    - m and v are estimates of the first moment (mean) and second moment (uncentered variance) of the gradients.
+    - g is the gradient.
+    - beta1 and beta2 are the exponential decay rates for moment estimates.
+    - epsilon is a small scalar used to prevent division by zero in the implementation.
+    - t is the timestep.
+    - lr is the learning rate.
+    - p is the parameter to be updated.
 
     Attributes:
-        beta1: Exponential decay rate for the first moment estimates.
-        beta2: Exponential decay rate for the second moment estimates.
-        epsilon: Term added to the denominator to improve numerical stability.
-        weight_decay: Weight decay coefficient.
-        is_adam: Flag to use Adam instead of LAMB algorithm.
-        time_step: Counter for the number of steps taken.
-        moments: First moment vectors (moving averages of the gradients).
-        velocities: Second moment vectors (moving averages of the squared gradients).
+        beta1 (float): The exponential decay rate for the first moment estimates.
+        beta2 (float): The exponential decay rate for the second moment estimates.
+        epsilon (float): Term added to the denominator to improve numerical stability.
+        weight_decay (float): Weight decay coefficient for regularization.
+        moments (List[Tensor]): List of first moment vectors (moving averages of the gradients).
+        velocities (List[Tensor]): List of second moment vectors (moving averages of the squared gradients).
+        time_step (Tensor): Counter for the number of steps taken.
+
+    Args:
+        params (List[Tensor]): List of parameters to optimize.
+        lr (float, optional): Learning rate. Default: 0.001.
+        b1 (float, optional): Exponential decay rate for the first moment estimates. Default: 0.9.
+        b2 (float, optional): Exponential decay rate for the second moment estimates. Default: 0.999.
+        eps (float, optional): Term added to the denominator to improve numerical stability. Default: 1e-6.
 
     """
-    def __init__(self, params: List[Tensor], lr: float=0.001, b1: float=0.9, b2: float=0.999, eps: float=1e-6, wd: float=0.0, adam: bool=False):
+    def __init__(self, params: List[Tensor], lr: float=0.001, b1: float=0.9, b2: float=0.999, eps: float=1e-6, wd: float=0.0):
         super().__init__(params, lr)
         self.beta1 = b1
         self.beta2 = b2
         self.epsilon = eps
         self.weight_decay = wd
-        self.is_adam = adam
 
         # Initialize time step, moments, and velocities for the optimizer
         self.time_step = Tensor([0], requires_grad=False)
@@ -140,9 +161,8 @@ class LAMB(Optimizer):
     def step(self):
         """Performs a single optimization step.
 
-        Updates the parameters based on the LAMB or Adam algorithm, depending on the `is_adam` flag.
-        Applies layer-wise adaptive learning rates.
-
+        Updates the parameters based on the Adam algorithm. Applies adaptive learning rates
+        for each parameter.
         """
         self.time_step.assign(self.time_step + 1)
         for i, t in enumerate(self.params):
@@ -159,13 +179,5 @@ class LAMB(Optimizer):
             # Compute the update with weight decay
             update = (m_hat / (v_hat.sqrt() + self.epsilon)) + self.weight_decay * t.detach()
 
-            # Compute the trust ratio if not using Adam
-            if not self.is_adam:
-                r1 = t.detach().square().sum().sqrt()
-                r2 = update.square().sum().sqrt()
-                trust_ratio = Tensor.where(r1 > 0, Tensor.where(r2 > 0, r1 / r2, 1.0), 1.0)
-            else:
-                trust_ratio = 1.0
-
             # Update the parameter
-            t.assign(t.detach() - self.learning_rate * trust_ratio * update)
+            t.assign(t.detach() - self.learning_rate * update)

@@ -1,6 +1,6 @@
 """This module contains functions for automatically computing the gradients from the cost/loss w.r.t. the model params.
 
-Conceptual explanation: https://www.tobiasstenzel.com/blog/2023/dl-backprop/
+Conceptual explanations: https://www.tobiasstenzel.com/blog/2023/dl-backprop/
 
 """
 from __future__ import annotations
