@@ -1,0 +1,33 @@
+name: Tests
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+
+    # Checkout the code at the commit (incl. branch) that triggered the workflow
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    # ------------------------------------------------------------------------------------------------------------------
+    # Resemble installation section in README.md
+    - name: Setup Conda Environment
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        activate-environment: '.env'
+        environment-file: 'environment.yaml'
+        auto-activate-base: false
+
+    - name: Install edugrad
+      run: |
+        pip install -e .
+    # ------------------------------------------------------------------------------------------------------------------
+
+    - name: Run Tests
+      # Execute the commands in a bash login shell, ensuring that the shell's environment is fully initialized.
+      shell: bash -l {0}
+      run: |
+        pytest tests
