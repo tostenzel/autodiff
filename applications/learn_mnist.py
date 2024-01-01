@@ -1,11 +1,6 @@
-import sys
 import os
-
-# Add the project root to the Python path
-project_root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
-sys.path.append(project_root)
-
 import gzip
+
 import numpy as np
 
 from edugrad import Tensor
