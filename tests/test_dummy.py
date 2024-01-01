@@ -1,3 +1,3 @@
 
 def test_dummy():
-    True == True
+    assert True == True
