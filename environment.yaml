@@ -6,9 +6,12 @@ dependencies:
 
   - numpy
 
-  # Development dependencies
+  # Linting
   - pre-commit
   - pytest
   - black
   - flake8
   - mypy
+
+  # Tests
+  - pytest
