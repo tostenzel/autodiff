@@ -10,17 +10,18 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v2
 
-    - name: Setup Miniconda
-      uses: conda-incubator/setup-miniconda@v2
-      with:
-        activate-environment: .env
-        environment-file: environment.yaml
-        auto-activate-base: false
+  - name: Setup Miniconda
+    uses: conda-incubator/setup-miniconda@v2
+    with:
+      auto-activate-base: false
 
-    - name: Install Dependencies
-      run: |
-        conda create --prefix .env
-        source activate .env/
+  - name: Install Dependencies
+    run: |
+      echo "Initialize Conda"
+      source $CONDA/etc/profile.d/conda.sh
+      echo "Activating Conda environment"
+      conda activate /home/runner/work/edugrad/edugrad/.env
+      echo "Environment activated"
         conda env update --file environment.yaml --prefix .env
         pip install -e .
 
