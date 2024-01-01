@@ -47,7 +47,9 @@ repos:
 -   repo: https://github.com/astral-sh/ruff-pre-commit
     rev: v0.1.6
     hooks:
-      - id: ruff
+    -   id: ruff
+        # F821 Undefined name `Tensor`, E731 Do not assign a `lambda` expression, use a `def`
+        args: ["--ignore", "F821"]
 -   repo: https://github.com/dosisod/refurb
     rev: v1.24.0
     hooks:

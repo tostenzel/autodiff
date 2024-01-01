@@ -13,7 +13,7 @@ import time
 from typing import ClassVar, Sequence, Any
 import numpy as np
 
-from edugrad.helpers import getenv, DEBUG, flatten, DType, dtypes, prod, all_int, round_up, shape_int
+from edugrad.helpers import getenv, DEBUG, DType, dtypes, prod, all_int, round_up, shape_int
 from edugrad.data import TensorData
 from edugrad.ops import LoadOps
 from edugrad.function import Function
@@ -25,7 +25,7 @@ from edugrad._tensor.tensor_create import _loadop, empty, manual_seed, rand
 from edugrad._tensor.tensor_create import randn, randint, normal, uniform, scaled_uniform
 from edugrad._tensor.tensor_create import full, zeros, ones, arange, eye, full_like, zeros_like, ones_like
 from edugrad._tensor.tensor_combine_segment import cat, stack, repeat, chunk
-from edugrad._tensor.tensor_reshape import reshape, expand, permute, flip, shrink, pad, pad2d, transpose, flatten, squeeze, unsqueeze
+from edugrad._tensor.tensor_reshape import reshape, expand, permute, flip, shrink, pad, pad2d, transpose, _flatten, squeeze, unsqueeze
 from edugrad._tensor.tensor_nn import _pool, avg_pool2d, max_pool2d, conv2d, linear, binary_crossentropy, binary_crossentropy_logits, sparse_categorical_crossentropy
 from edugrad._tensor.tensor_index_slice import __getitem__, __setitem__, slice, gather
 from edugrad._tensor.tensor_broadcasted_binary_mlops import _broadcasted, _to_float, add, sub, mul, div, pow, matmul, maximum, minimum, where
@@ -230,7 +230,7 @@ class Tensor:
     @property
     def T(self) -> Tensor: return self.transpose()
     def transpose(self, ax1=1, ax2=0) -> Tensor: return transpose(self, ax1, ax2)
-    def flatten(self, start_dim=0): return flatten(self, start_dim)
+    def flatten(self, start_dim=0): return _flatten(self, start_dim)
 
     # ------------------------------------------------------------------------------------------------------------------
     # tensor_index_slice.py
@@ -305,7 +305,8 @@ class Tensor:
         # TODO: someday the optimizer will find this on it's own
         # for now this is a two stage cumsum
         SPLIT = 256
-        if self.shape[axis] <= SPLIT*2: return self._cumsum(axis)
+        if self.shape[axis] <= SPLIT*2:
+            return self._cumsum(axis)
         ret = self.transpose(axis,-1).pad2d((round_up(self.shape[axis], SPLIT)-self.shape[axis], 0))
         ret = ret.reshape(*ret.shape[0:-1], ret.shape[-1]//SPLIT, SPLIT)._cumsum(-1)
         base_add = ret[..., -1]._cumsum(-1, _first_zero=True)[..., :-1]

@@ -8,7 +8,10 @@ from edugrad.optim import optimizer
 
 
 def fetch_mnist(for_convolution=True):
-    parse = lambda file: np.frombuffer(gzip.open(file).read(), dtype=np.uint8).copy()
+    def parse(file):
+        return np.frombuffer(gzip.open(file).read(), dtype=np.uint8).copy()
+
+    # parse = lambda file: np.frombuffer(gzip.open(file).read(), dtype=np.uint8).copy()
     BASE = os.path.dirname(__file__) + "/datasets"
     X_train = parse(BASE + "/mnist/train-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28 * 28)).astype(np.float32)
     Y_train = parse(BASE + "/mnist/train-labels-idx1-ubyte.gz")[8:]

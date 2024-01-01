@@ -1,5 +1,6 @@
 from __future__ import annotations
-import time, math
+import time
+import math
 
 from edugrad.helpers import argfix, DType, prod, shape_int, dtypes
 from edugrad.data import TensorData

@@ -62,7 +62,7 @@ def transpose(tensor: Tensor, ax1, ax2) -> Tensor:
     return tensor.permute(order)
 
 
-def flatten(tensor: Tensor, start_dim):
+def _flatten(tensor: Tensor, start_dim):
     return tensor.reshape(shape=tensor.shape[:start_dim] + (-1,))
 
 

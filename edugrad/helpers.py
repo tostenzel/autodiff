@@ -23,9 +23,9 @@ def make_pair(x: Union[int, Tuple[int, ...]], cnt=2) -> Tuple[int, ...]:
     return (x,) * cnt if isinstance(x, int) else x
 
 
-def flatten(l: Iterator):
+def flatten(list_: Iterator):
     """Flatten a list of lists into a single list."""
-    return [item for sublist in l for item in sublist]
+    return [item for sublist in list_ for item in sublist]
 
 
 def argsort(x):
@@ -82,7 +82,7 @@ class dtypes:
     @staticmethod
     def is_int(x: DType) -> bool:
         """Check if a data type is an integer type."""
-        return x in [
+        return x in (
             dtypes.int8,
             dtypes.int16,
             dtypes.int32,
@@ -91,17 +91,17 @@ class dtypes:
             dtypes.uint16,
             dtypes.uint32,
             dtypes.uint64,
-        ]
+        )
 
     @staticmethod
     def is_float(x: DType) -> bool:
         """Check if a data type is a float type."""
-        return x in [dtypes.float16, dtypes.float32, dtypes.float64]
+        return x in (dtypes.float16, dtypes.float32, dtypes.float64)
 
     @staticmethod
     def is_unsigned(x: DType) -> bool:
         """Check if a data type is an unsigned type."""
-        return x in [dtypes.uint8, dtypes.uint16, dtypes.uint32, dtypes.uint64]
+        return x in (dtypes.uint8, dtypes.uint16, dtypes.uint32, dtypes.uint64)
 
     @staticmethod
     def from_np(x) -> DType:

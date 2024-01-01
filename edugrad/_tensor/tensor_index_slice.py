@@ -2,7 +2,7 @@ from typing import Sequence, Optional, Tuple
 from collections import defaultdict
 
 from edugrad.helpers import shape_int, dtypes
-from edugrad._tensor.tensor_reshape import pad, flatten
+from edugrad._tensor.tensor_reshape import pad, _flatten
 
 
 # ***** movement high level ops *****
@@ -81,10 +81,10 @@ def __getitem__(
             tuple((0, s - (dim_sz % s) if dim_sz % s != 0 else 0) for s, dim_sz in zip(strides, sliced_tensor.shape))
         )
         # Reshape: [dim_sz_padded] -> [dim_sz_padded // s, s]
-        reshaped_tensor = padded_tensor.reshape(flatten([sh // s, s] for sh, s in zip(padded_tensor.shape, strides)))
+        reshaped_tensor = padded_tensor.reshape(_flatten([sh // s, s] for sh, s in zip(padded_tensor.shape, strides)))
         new_shape = reshaped_tensor.shape[::2]
         # Shrink: do [:, 0]
-        sliced_tensor = reshaped_tensor.shrink(tuple(flatten(((0, sh), (0, 1)) for sh in new_shape)))
+        sliced_tensor = reshaped_tensor.shrink(tuple(_flatten(((0, sh), (0, 1)) for sh in new_shape)))
 
     final_shape, it_shape, dim, tensors, dim_collapsed = [], iter(new_shape), [], [], 0
     for i, s in enumerate(orig_slices):

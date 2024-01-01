@@ -34,7 +34,7 @@ def stack(tensors, dim) -> Tensor:
 
 def repeat(tensor: Tensor, repeats) -> Tensor:
     base_shape = (1,) * (len(repeats) - tensor.ndim) + tensor.shape
-    new_shape = [x for b in base_shape for x in [1, b]]
+    new_shape = [x for b in base_shape for x in (1, b)]
     expand_shape = [x for rs in zip(repeats, base_shape) for x in rs]
     final_shape = [r * s for r, s in zip(repeats, base_shape)]
     return tensor.reshape(new_shape).expand(expand_shape).reshape(final_shape)
