@@ -22,7 +22,6 @@ jobs:
       conda create --prefix .env
       conda activate .env/
       conda env update --file environment.yaml --prefix .env
-
       pip install -e .
 
     - name: Run Pytest
