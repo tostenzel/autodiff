@@ -1,4 +1,4 @@
-name: Conda Environment and Pytest
+name: Edugrad CI
 
 on: [push, pull_request]
 
@@ -7,24 +7,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - name: Checkout code
+    - name: Checkout Repository
       uses: actions/checkout@v2
+      with:
+        repository: 'tostenzel/edugrad'
+        ref: 'main'
 
-    - name: Setup Miniconda
+    - name: Setup Conda Environment
       uses: conda-incubator/setup-miniconda@v2
       with:
+        activate-environment: '.env'
+        environment-file: 'environment.yaml'
         auto-activate-base: false
 
-    - name: Install Dependencies
+    - name: Install Edugrad
       run: |
-        echo "Initialize Conda"
-        source $CONDA/etc/profile.d/conda.sh
-        echo "Activating Conda environment"
-        conda activate /home/runner/work/edugrad/edugrad/.env
-        echo "Environment activated"
-        conda env update --file environment.yaml --prefix .env
         pip install -e .
 
-    - name: Run Pytest
+    - name: Run Tests
       run: |
-        pytest tests/
+        pytest tests
