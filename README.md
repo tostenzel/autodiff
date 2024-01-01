@@ -1,3 +1,5 @@
+![test workflow badge](https://github.com/tostenzel/edugrad/actions/workflows/Tests.yaml/badge.svg)
+
 # edugrad
 
 ## Installation
