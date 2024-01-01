@@ -1,7 +1,6 @@
 """Contains reduction and transformation functions for tensor operations."""
 
 from __future__ import annotations
-from typing import List, Tuple, Type, Optional, Union
 
 from edugrad.helpers import dtypes, prod, all_int
 from edugrad.function import Function

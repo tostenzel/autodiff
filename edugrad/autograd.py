@@ -5,8 +5,6 @@ Conceptual explanations: https://www.tobiasstenzel.com/blog/2023/dl-backprop/
 """
 from __future__ import annotations
 
-from typing import List, Set
-
 
 def collect_backward_graph(tensor: Tensor):
     """Collects tensors involved in the computational graph of the given tensor in backward pass order.

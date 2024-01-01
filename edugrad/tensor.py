@@ -10,7 +10,7 @@ The high-level ops support many things that you could expect from a tensor libra
 # inspired by https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
 from __future__ import annotations
 import time
-from typing import List, Tuple, Optional, ClassVar, Union, Sequence, Any
+from typing import ClassVar, Sequence, Any
 import numpy as np
 
 from edugrad.helpers import getenv, DEBUG, flatten, DType, dtypes, prod, all_int, round_up, shape_int

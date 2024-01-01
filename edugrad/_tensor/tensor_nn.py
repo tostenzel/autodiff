@@ -2,7 +2,6 @@
 
 from __future__ import annotations
 import math
-from typing import Tuple, Optional, Union
 
 from edugrad.helpers import make_pair, flatten, dtypes, all_int, shape_int
 
@@ -207,7 +206,7 @@ def conv2d(
         return ret if bias is None else ret.add(bias.reshape(1, -1, *[1] * len(HW)))
 
     else:
-        raise NotImplemented("Alternative or optimized convolution operations are not implemented.")
+        raise NotImplementedError("Alternative or optimized convolution operations are not implemented.")
 
 
 # ----------------------------------------------------------------------------------------------------------------------

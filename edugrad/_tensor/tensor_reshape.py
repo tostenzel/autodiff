@@ -1,5 +1,4 @@
 from __future__ import annotations
-from typing import Tuple, Optional, Union, List
 
 from edugrad.helpers import argfix, prod, shape_int
 
