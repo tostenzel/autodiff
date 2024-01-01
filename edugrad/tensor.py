@@ -18,8 +18,9 @@ from edugrad.data import TensorData
 from edugrad.ops import LoadOps
 from edugrad.function import Function
 import edugrad.function as function
-
 from edugrad.autograd import backward, collect_backward_graph
+
+# fmt: off
 from edugrad._tensor.tensor_create import _loadop, empty, manual_seed, rand
 from edugrad._tensor.tensor_create import randn, randint, normal, uniform, scaled_uniform
 from edugrad._tensor.tensor_create import full, zeros, ones, arange, eye, full_like, zeros_like, ones_like
@@ -29,34 +30,44 @@ from edugrad._tensor.tensor_nn import _pool, avg_pool2d, max_pool2d, conv2d, lin
 from edugrad._tensor.tensor_index_slice import __getitem__, __setitem__, slice, gather
 from edugrad._tensor.tensor_broadcasted_binary_mlops import _broadcasted, _to_float, add, sub, mul, div, pow, matmul, maximum, minimum, where
 from edugrad._tensor.tensor_reduce import _reduce, tsum, tmax, tmin, mean, std, _softmax, softmax, log_softmax, argmax, argmin
+# fmt: on
 
 
 class Tensor:
     __slots__ = "data", "requires_grad", "grad", "_ctx"
-    __deletable__ = ('_ctx',)
+    __deletable__ = ("_ctx",)
     training: ClassVar[bool] = False
 
     class train:
-        def __init__(self, val=True): self.val = val
-        def __enter__(self): self.prev, Tensor.training = Tensor.training, self.val
-        def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any): Tensor.training = self.prev
+        def __init__(self, val=True):
+            self.val = val
+
+        def __enter__(self):
+            self.prev, Tensor.training = Tensor.training, self.val
+
+        def __exit__(self, exc_type: Any, exc_value: Any, traceback: Any):
+            Tensor.training = self.prev
 
     no_grad: ClassVar[bool] = False
     default_type: ClassVar[DType] = dtypes.float32
 
-    def __init__(self, data:Union[None, int, float, list, TensorData, np.ndarray, bytes], dtype:Optional[DType]=None, requires_grad:Optional[bool]=None):
-        
+    def __init__(
+        self,
+        data: None | int | float | list | TensorData | np.ndarray | bytes,
+        dtype: DType | None = None,
+        requires_grad: bool | None = None,
+    ):
         assert dtype is None or isinstance(dtype, DType), f"invalid dtype {dtype}"
 
         # tensors have gradients, buffers do not
-        self.grad: Optional[Tensor] = None
+        self.grad: Tensor | None = None
 
         # NOTE: this can be in three states. False and None: no gradient, True: gradient
         # None (the default) will be updated to True if it's put in an optimizer
-        self.requires_grad: Optional[bool] = requires_grad
+        self.requires_grad: bool | None = requires_grad
 
         # internal variables used for autograd graph construction
-        self._ctx: Optional[Function] = None
+        self._ctx: Function | None = None
 
         if isinstance(data, TensorData):
             assert dtype is None or dtype == data.dtype, "dtype doesn't match, and casting isn't supported"
@@ -78,7 +89,8 @@ class Tensor:
             else:
                 data = TensorData(data.astype(dtype.np) if dtype is not None and dtype.np is not None else data)
 
-        if not isinstance(data, TensorData): raise RuntimeError(f"can't create Tensor from {data!r} with type {type(data)}")
+        if not isinstance(data, TensorData):
+            raise RuntimeError(f"can't create Tensor from {data!r} with type {type(data)}")
         self.data = data
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -86,42 +98,57 @@ class Tensor:
 
     def __repr__(self):
         return f"<Tensor {self.data!r} with grad {(self.grad.data if self.grad else None)!r}>"
+
     # Python has a non moving garbage collector, so this should be okay
-    def __hash__(self): return id(self)
+    def __hash__(self):
+        return id(self)
+
     @property
-    def shape(self) -> Tuple[shape_int, ...]: return self.data.shape
+    def shape(self) -> tuple[shape_int, ...]:
+        return self.data.shape
+
     @property
-    def dtype(self) -> DType: return self.data.dtype
+    def dtype(self) -> DType:
+        return self.data.dtype
 
     # ------------------------------------------------------------------------------------------------------------------
     # data handlers
 
     def assign(self, x) -> Tensor:
         # TODO: this is a hack for writing to DISK
-        if x.__class__ is not Tensor: x = Tensor(x, dtype=self.dtype)
+        if x.__class__ is not Tensor:
+            x = Tensor(x, dtype=self.dtype)
         assert self.shape == x.shape, f"assign shape mismatch {self.shape} != {x.shape}"
-        assert not x.requires_grad    # tensor requires_grad is okay?
-        if DEBUG >= 4: print(f"assign {self.data} <- {x.data}")
-        if self.dtype == x.dtype and self.data is not None and not getenv("DISALLOW_ASSIGN"): x.data.output_buffer = self.data
+        assert not x.requires_grad  # tensor requires_grad is okay?
+        if DEBUG >= 4:
+            print(f"assign {self.data} <- {x.data}")
+        if self.dtype == x.dtype and self.data is not None and not getenv("DISALLOW_ASSIGN"):
+            x.data.output_buffer = self.data
         self.data = x.data
         return self
 
     # ------------------------------------------------------------------------------------------------------------------
-    # basic tensor manipulations 
+    # basic tensor manipulations
 
-    def detach(self) -> Tensor: return Tensor(self.data, requires_grad=False)
+    def detach(self) -> Tensor:
+        return Tensor(self.data, requires_grad=False)
+
     def numpy(self) -> np.ndarray:
         assert all_int(self.shape), f"no numpy if shape is symbolic, {self.shape=}"
         assert self.dtype.np is not None, f"no numpy dtype for {self.dtype}"
         return self.detach().cast(dtypes.from_np(self.dtype.np)).data.data.reshape(self.shape)
-    def item(self) -> Union[float, int]: return self.numpy().item()
+
+    def item(self) -> float | int:
+        return self.numpy().item()
+
+    # fmt: off
 
     # ------------------------------------------------------------------------------------------------------------------
     # tensor_create.py
     # creation low-level op entrypoint
 
     @staticmethod
-    def _loadop(op, sz, dtype:Optional[DType]=None, arg=None, **kwargs): return _loadop(op, sz, dtype, arg, **kwargs)
+    def _loadop(op, sz, dtype:DType | None=None, arg=None, **kwargs): return _loadop(op, sz, dtype, arg, **kwargs)
 
     @staticmethod
     def empty(*shape, **kwargs): return empty(*shape, **kwargs)
@@ -136,7 +163,7 @@ class Tensor:
     # creation helper functions
 
     @staticmethod
-    def full(shape:Tuple[shape_int, ...], fill_value, **kwargs): return full(shape, fill_value, **kwargs)
+    def full(shape:tuple[shape_int, ...], fill_value, **kwargs): return full(shape, fill_value, **kwargs)
 
     @staticmethod
     def zeros(*shape, **kwargs): return zeros(*shape, **kwargs)
@@ -158,11 +185,11 @@ class Tensor:
     # random number generation high level ops
 
     @staticmethod
-    def randn(*shape, dtype:Optional[DType]=None, **kwargs) -> Tensor: return randn(*shape, dtype=dtype, **kwargs)
+    def randn(*shape, dtype:DType | None=None, **kwargs) -> Tensor: return randn(*shape, dtype=dtype, **kwargs)
     @staticmethod
-    def randint(*shape, low=0, high=10, **kwargs) -> Tensor: return randint(*shape, low=low, high=high, **kwargs) 
+    def randint(*shape, low=0, high=10, **kwargs) -> Tensor: return randint(*shape, low=low, high=high, **kwargs)
     @staticmethod
-    def normal(*shape, mean=0.0, std=1.0, **kwargs) -> Tensor:  return normal(*shape, mean=mean, std=std, **kwargs) 
+    def normal(*shape, mean=0.0, std=1.0, **kwargs) -> Tensor:  return normal(*shape, mean=mean, std=std, **kwargs)
     @staticmethod
     def uniform(*shape, low=0.0, high=1.0, **kwargs) -> Tensor:
         return uniform(*shape, low=low, high=high, **kwargs)
@@ -193,10 +220,10 @@ class Tensor:
     def expand(self, shape, *args) -> Tensor: return expand(self, shape, *args)
     def permute(self, order, *args) -> Tensor: return permute(self, order, *args)
     def flip(self, axis, *args) -> Tensor: return flip(self, axis, *args)
-    def pad(self, arg:Tuple[Optional[Tuple[int, int]], ...], value:float=0.0) -> Tensor: pad(self, arg, value)
+    def pad(self, arg:tuple[tuple[int, int] | None, ...], value:float=0.0) -> Tensor: pad(self, arg, value)
     # (padding_left, padding_right, padding_top, padding_bottom)
-    def pad2d(self, padding:Union[List[int], Tuple[int, ...]], value:float=0) -> Tensor: return pad2d(self, padding, value)
-    def shrink(self, arg:Tuple[Optional[Tuple[shape_int, shape_int]], ...]) -> Tensor: return shrink(self, arg)
+    def pad2d(self, padding:list[int] | tuple[int, ...], value:float=0) -> Tensor: return pad2d(self, padding, value)
+    def shrink(self, arg:tuple[tuple[shape_int, shape_int] | None, ...]) -> Tensor: return shrink(self, arg)
     def squeeze(self, dim=None) -> Tensor: squeeze(self, dim)
     def unsqueeze(self, dim) -> Tensor: return unsqueeze(self, dim)
 
@@ -215,7 +242,7 @@ class Tensor:
     def __setitem__(self,s,v): return __setitem__(self,s,v)
 
     # NOTE: using slice is discouraged and things should migrate to pad and shrink
-    def slice(self, arg:Sequence[Optional[Tuple[int, shape_int]]], value:float=0) -> Tensor:
+    def slice(self, arg:Sequence[tuple[int, shape_int] | None], value:float=0) -> Tensor:
         return slice(self, arg, value)
 
     def gather(self: Tensor, idx: Tensor, dim: int) -> Tensor: return gather(self, idx, dim)
@@ -227,11 +254,11 @@ class Tensor:
     @staticmethod
     def stack(tensors, dim=0) -> Tensor: stack(tensors, dim)
     def repeat(self, repeats) -> Tensor: repeat(self, repeats)
-    def chunk(self, num:int, dim:int=0) -> List[Tensor]: chunk(self, num, dim)
+    def chunk(self, num:int, dim:int=0) -> list[Tensor]: chunk(self, num, dim)
 
     # reduce ops
 
-    def _reduce(self, fxn:Type[Function], axis:Optional[Union[int, Tuple[int, ...]]]=None, keepdim=False) -> Tensor:
+    def _reduce(self, fxn:Type[Function], axis:int | tuple[int, ...] | None=None, keepdim=False) -> Tensor:
         return _reduce(self, fxn, axis, keepdim)
 
     def sum(self, axis=None, keepdim=False): return tsum(self, axis, keepdim)
@@ -252,7 +279,7 @@ class Tensor:
     # tensor_nn.py
     # processing ops
 
-    def _pool(self, k_:Tuple[shape_int, ...], stride:Union[Tuple[int, ...], int]=1, dilation:Union[Tuple[int, ...], int]=1) -> Tensor:
+    def _pool(self, k_:tuple[shape_int, ...], stride:tuple[int, ...] | int=1, dilation:tuple[int, ...] | int=1) -> Tensor:
       return _pool(self, k_, stride, dilation)
 
     # NOTE: these work for more than 2D
@@ -260,9 +287,9 @@ class Tensor:
     def max_pool2d(self, kernel_size=(2,2), stride=None, dilation=1): return max_pool2d(self, kernel_size, stride, dilation)
 
     wino = int(getenv("WINO", "0")) # no winograd convolution
-    def conv2d(self, weight:Tensor, bias:Optional[Tensor]=None, groups=1, stride=1, dilation=1, padding=0) -> Tensor:
+    def conv2d(self, weight:Tensor, bias:Tensor | None=None, groups=1, stride=1, dilation=1, padding=0) -> Tensor:
         return conv2d(self, weight, bias, groups, stride, dilation, padding)
-    
+
     # ------------------------------------------------------------------------------------------------------------------
 
     def dot(self, w:Tensor) -> Tensor:
@@ -304,21 +331,21 @@ class Tensor:
 
     # broadcasted binary mlops
 
-    def _broadcasted(self, y:Union[Tensor, float], reverse:bool=False) -> Tuple[Tensor, Tensor]:
+    def _broadcasted(self, y:Tensor | float, reverse:bool=False) -> tuple[Tensor, Tensor]:
         return _broadcasted(self, y, reverse)
 
-    def _to_float(self, x:Union[Tensor, float]): return _to_float(self, x)
+    def _to_float(self, x:Tensor | float): return _to_float(self, x)
 
-    def add(self, x:Union[Tensor, float], reverse=False) -> Tensor: return add(self, x, reverse)
-    def sub(self, x:Union[Tensor, float], reverse=False) -> Tensor: return sub(self, x, reverse)
-    def mul(self, x:Union[Tensor, float], reverse=False) -> Tensor: return mul(self, x, reverse)
-    def pow(self, x:Union[Tensor, float], reverse=False) -> Tensor: return pow(self, x, reverse)
-    def div(self, x:Union[Tensor, float], reverse=False) -> Tensor: return div(self, x, reverse)
+    def add(self, x:Tensor | float, reverse=False) -> Tensor: return add(self, x, reverse)
+    def sub(self, x:Tensor | float, reverse=False) -> Tensor: return sub(self, x, reverse)
+    def mul(self, x:Tensor | float, reverse=False) -> Tensor: return mul(self, x, reverse)
+    def pow(self, x:Tensor | float, reverse=False) -> Tensor: return pow(self, x, reverse)
+    def div(self, x:Tensor | float, reverse=False) -> Tensor: return div(self, x, reverse)
     def matmul(self, x:Tensor, reverse=False) -> Tensor: return matmul(self, x, reverse)
 
-    def maximum(self, x:Union[Tensor, float]) -> Tensor: return maximum(self, x)
-    def minimum(self, x:Union[Tensor, float]) -> Tensor: return minimum(self, x)
-    def where(self:Tensor, input_:Union[Tensor, float], other:Union[Tensor, float]): return where(self, input_, other)
+    def maximum(self, x:Tensor | float) -> Tensor: return maximum(self, x)
+    def minimum(self, x:Tensor | float) -> Tensor: return minimum(self, x)
+    def where(self:Tensor, input_:Tensor | float, other:Tensor | float): return where(self, input_, other)
 
     # op wrappers (wasted lines to make the typechecker happy)
 
@@ -354,7 +381,7 @@ class Tensor:
 
     # functional nn ops
 
-    def linear(self, weight:Tensor, bias:Optional[Tensor]=None): return linear(self, weight, bias)
+    def linear(self, weight:Tensor, bias:Tensor | None=None): return linear(self, weight, bias)
 
     def binary_crossentropy(self, y:Tensor) -> Tensor: return binary_crossentropy(self, y)
 

@@ -16,9 +16,9 @@ Operation Types:
 """
 from collections import namedtuple
 
-UnaryOps = namedtuple('UnaryOps', ['NOOP', 'EXP2', 'LOG2', 'CAST', 'SIN', 'SQRT', 'RECIP', 'NEG'])
-BinaryOps = namedtuple('BinaryOps', ['ADD', 'SUB', 'MUL', 'DIV', 'MAX', 'MOD', 'CMPLT'])
-TernaryOps = namedtuple('TernaryOps', ['MULACC', 'WHERE'])
-ReduceOps = namedtuple('ReduceOps', ['SUM', 'MAX'])
-MovementOps = namedtuple('MovementOps', ['RESHAPE', 'PERMUTE', 'EXPAND', 'PAD', 'SHRINK', 'STRIDE'])
-LoadOps = namedtuple('LoadOps', ['EMPTY', 'RAND', 'CONST', 'FROM', 'CUSTOM'])
+UnaryOps = namedtuple("UnaryOps", ["NOOP", "EXP2", "LOG2", "CAST", "SIN", "SQRT", "RECIP", "NEG"])
+BinaryOps = namedtuple("BinaryOps", ["ADD", "SUB", "MUL", "DIV", "MAX", "MOD", "CMPLT"])
+TernaryOps = namedtuple("TernaryOps", ["MULACC", "WHERE"])
+ReduceOps = namedtuple("ReduceOps", ["SUM", "MAX"])
+MovementOps = namedtuple("MovementOps", ["RESHAPE", "PERMUTE", "EXPAND", "PAD", "SHRINK", "STRIDE"])
+LoadOps = namedtuple("LoadOps", ["EMPTY", "RAND", "CONST", "FROM", "CUSTOM"])

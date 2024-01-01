@@ -1,1 +1,1 @@
-from edugrad.tensor import Tensor # noqa: F401
+from edugrad.tensor import Tensor  # noqa: F401

@@ -1,8 +1,7 @@
 """Defines the TensorData class, a container for tensor data (tensor.Tensor.data), represented as numpy arrays.
 
-It facilitates direct manipulation of tensor data through a range of basic operation ("low-level ops"). These
-operations are building blocks for defining forward and backward passes of differentiable function.Functions.
-("mid-level ops")
+It facilitates direct manipulation of tensor data through a range of basic operation ("low-level ops"). These operations
+are building blocks for defining forward and backward passes of differentiable function.Functions. ("mid-level ops")
 
 The ops are executed immediately on the CPU using numpy. This approach contrasts with deferred computation models that
 analyze subsequent delayed operations in order to find an optimized equivalent final optimization at the point where
@@ -13,7 +12,7 @@ If you would like to use another backend for storing and computing data, it woul
 """
 from typing import Tuple
 import numpy as np
-from edugrad.ops import UnaryOps, BinaryOps, TernaryOps, ReduceOps, LoadOps   # consider reading the docs there
+from edugrad.ops import UnaryOps, BinaryOps, TernaryOps, ReduceOps, LoadOps  # consider reading the docs there
 from edugrad.helpers import DType, dtypes, DEBUG
 
 
@@ -39,7 +38,7 @@ class TensorData:
         return f"<TensorData shape={self.shape} dtype={self.dtype}>"
 
     @staticmethod
-    def loadop(op: LoadOps, shape: Tuple[int, ...], dtype: DType, arg=None) -> 'TensorData':
+    def loadop(op: LoadOps, shape: Tuple[int, ...], dtype: DType, arg=None) -> "TensorData":
         """Create a TensorData object based on a specific loading operation, shape and datatype.
 
         Supported operations include creating random data, constant data, or empty data.
@@ -67,14 +66,14 @@ class TensorData:
         else:
             raise NotImplementedError(f"Operation {op} not implemented")
 
-    def cast(self, dtype: DType, bitcast: bool = False) -> 'TensorData':
+    def cast(self, dtype: DType, bitcast: bool = False) -> "TensorData":
         """Cast the TensorData to a different data type."""
         if bitcast:
             return TensorData(self.data.view(dtype.np))
         else:
             return TensorData(self.data.astype(dtype.np))
 
-    def elementwise(self, op, *srcs: 'TensorData'):
+    def elementwise(self, op, *srcs: "TensorData"):
         """Perform a unary, binary, or ternary elementwise operation on the data."""
         unary_ops = {
             UnaryOps.NEG: np.negative,
@@ -106,17 +105,17 @@ class TensorData:
 
     def reduce(self, op, new_shape):
         """Perform reduction operations on the data."""
-        if DEBUG >= 1: 
+        if DEBUG >= 1:
             print(op, self, new_shape)
         assert len(self.shape) == len(new_shape), "reduce shapes must have same dimensions"
         axis = tuple(i for i, (a, b) in enumerate(zip(self.shape, new_shape)) if a != b)
 
         # Reduction operations
-        if op == ReduceOps.SUM: 
+        if op == ReduceOps.SUM:
             return TensorData(self.data.sum(axis, dtype=self.data.dtype, keepdims=True))
-        elif op == ReduceOps.MAX: 
+        elif op == ReduceOps.MAX:
             return TensorData(self.data.max(axis, keepdims=True))
-        else: 
+        else:
             raise NotImplementedError(op)
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -144,11 +143,11 @@ class TensorData:
     def stride(self, arg):
         """Apply striding to the  data."""
         return TensorData(self.data[tuple(slice(None, None, i) for i in arg)])
-    
+
     def is_unrealized_contiguous_const(self):
         """Checks if the data is an unrealized contiguous constant."""
         return False
-    
-    def const(self, x) -> 'TensorData':
+
+    def const(self, x) -> "TensorData":
         """Returns a new TensorData with a constant value."""
         return TensorData(np.full_like(self.data, x))
