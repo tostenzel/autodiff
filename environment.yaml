@@ -2,4 +2,13 @@ name: .env
 channels:
   - defaults
 dependencies:
+  - python=3.10  # lowest version allowed by mypy
+
   - numpy
+
+  # Development dependencies
+  - pre-commit
+  - pytest
+  - black
+  - flake8
+  - mypy
