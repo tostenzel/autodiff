@@ -7,11 +7,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+        # checkout the code at the commit (incl. branch) that triggered the workflow
     - name: Checkout Repository
       uses: actions/checkout@v2
-      with:
-        repository: 'tostenzel/edugrad'
-        ref: 'main'
 
     - name: Setup Conda Environment
       uses: conda-incubator/setup-miniconda@v2
