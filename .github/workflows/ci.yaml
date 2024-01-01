@@ -7,7 +7,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-        # checkout the code at the commit (incl. branch) that triggered the workflow
+
+    # checkout the code at the commit (incl. branch) that triggered the workflow
     - name: Checkout Repository
       uses: actions/checkout@v2
 
@@ -23,7 +24,7 @@ jobs:
         pip install -e .
 
     - name: Run Tests
-      shell: bash -l {0}
+      #shell: bash -l {0}
       run: |
         conda list
         pytest tests
