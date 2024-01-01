@@ -13,14 +13,14 @@ jobs:
     - name: Setup Miniconda
       uses: conda-incubator/setup-miniconda@v2
       with:
-        activate-environment: .env
+        activate-environment: myenv
         environment-file: environment.yaml
         auto-activate-base: false
 
     - name: Install Dependencies
       run: |
         conda env create -f environment.yaml
-        source activate .env
+        source activate myenv
 
     - name: Run Pytest
       run: |
