@@ -1,0 +1,27 @@
+name: Conda Environment and Pytest
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v2
+
+    - name: Setup Miniconda
+      uses: conda-incubator/setup-miniconda@v2
+      with:
+        activate-environment: .env
+        environment-file: environment.yaml
+        auto-activate-base: false
+
+    - name: Install Dependencies
+      run: |
+        conda env create -f environment.yaml
+        source activate .env
+
+    - name: Run Pytest
+      run: |
+        pytest tests/
