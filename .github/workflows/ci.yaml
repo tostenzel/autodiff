@@ -26,5 +26,6 @@ jobs:
 
     - name: Run Tests
       run: |
+        conda activate .env
         conda list
         pytest tests
