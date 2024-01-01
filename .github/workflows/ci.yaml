@@ -19,10 +19,10 @@ jobs:
 
     - name: Install Dependencies
       run: |
-      conda create --prefix .env
-      conda activate .env/
-      conda env update --file environment.yaml --prefix .env
-      pip install -e .
+        conda create --prefix .env
+        source activate .env/
+        conda env update --file environment.yaml --prefix .env
+        pip install -e .
 
     - name: Run Pytest
       run: |
