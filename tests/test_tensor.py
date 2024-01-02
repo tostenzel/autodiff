@@ -1,11 +1,11 @@
 import numpy as np
 import torch
 import unittest, copy
-import mmap
 from edugrad import Tensor
 from edugrad.helpers import dtypes
 #from tinygrad.helpers import temp
-#from extra.gradcheck import numerical_jacobian, jacobian, gradcheck
+
+from tests.gradcheck import numerical_jacobian, jacobian, gradcheck
 
 x_init = np.random.randn(1,3).astype(np.float32)
 U_init = np.random.randn(3,3).astype(np.float32)
@@ -99,16 +99,7 @@ class TestTinygrad(unittest.TestCase):
     assert mm.grad is not None
     assert W.grad is not None
 
-  """
-  def test_dropout(self):
-    with Tensor.train():
-      n, rate = 1_000_000, 0.1
-      w = Tensor.ones(n).dropout(rate)
-      non_zeros = np.count_nonzero(w.numpy())
-      expected = n * (1 - rate)
-      np.testing.assert_allclose(non_zeros, expected, rtol=2e-3)
-
-
+  
   def test_jacobian(self):
     W = np.random.RandomState(42069).random((10, 5)).astype(np.float32)
     x = np.random.RandomState(69420).random((1, 10)).astype(np.float32)
@@ -139,7 +130,7 @@ class TestTinygrad(unittest.TestCase):
 
     # coarse approx. since a "big" eps and the non-linearities of the model
     self.assertFalse(gradcheck(tiny_func, tiny_x, eps = 1e-5))
-    """
+
 
 
 
