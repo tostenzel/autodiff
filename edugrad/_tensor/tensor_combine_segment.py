@@ -7,7 +7,7 @@ from edugrad.helpers import all_int
 
 
 def cat(tensor, *args, dim) -> Tensor:
-    from edugrad._tensor import Tensor
+    from edugrad.tensor import Tensor
 
     dim = (dim + len(tensor.shape)) if dim < 0 else dim
     assert all(
