@@ -1,4 +1,4 @@
-from typing import Union, Tuple, Iterator, Optional, Final, Any
+from typing import ClassVar, Dict, Union, Tuple, Iterator, Optional, Final, Any
 import os
 import functools
 import numpy as np
@@ -107,6 +107,10 @@ class dtypes:
     def from_np(x) -> DType:
         """Convert a numpy data type to a DType."""
         return DTYPES_DICT[np.dtype(x).name]
+    
+    @staticmethod
+    def fields() -> Dict[str, DType]:
+        return DTYPES_DICT
 
     # Definition of various data types
     bool: Final[DType] = DType(0, 1, "bool", np.bool_)
@@ -125,8 +129,8 @@ class dtypes:
     uint32: Final[DType] = DType(6, 4, "unsigned int", np.uint32)
     uint64: Final[DType] = DType(8, 8, "unsigned long", np.uint64)
 
-    # Note: bfloat16 isn't supported in numpy
-    bfloat16: Final[DType] = DType(9, 2, "__bf16", None)
+    default_float: ClassVar[DType] = float32
+    default_int: ClassVar[DType] = int32
 
 
 # Dictionary mapping data type names to DType objects
