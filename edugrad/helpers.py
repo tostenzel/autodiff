@@ -27,6 +27,8 @@ def flatten(list_: Iterator):
     """Flatten a list of lists into a single list."""
     return [item for sublist in list_ for item in sublist]
 
+def fully_flatten(l): return [item for sublist in l for item in (fully_flatten(sublist) if isinstance(sublist, (tuple, list)) else [sublist])]
+
 
 def argsort(x):
     """Return the indices that would sort an array.
@@ -111,6 +113,10 @@ class dtypes:
     @staticmethod
     def fields() -> Dict[str, DType]:
         return DTYPES_DICT
+    
+    @staticmethod  # NOTE: isinstance(True, int) is True in python
+    def from_py(x) -> DType:
+        return dtypes.default_float if isinstance(x, float) else dtypes.bool if isinstance(x, bool) else dtypes.default_int
 
     # Definition of various data types
     bool: Final[DType] = DType(0, 1, "bool", np.bool_)

@@ -75,11 +75,13 @@ class Tensor:
         # internal variables used for autograd graph construction
         self._ctx: Function | None = None
 
+        # --------------------------------------------------------------------------------------------------------------
+        # Handles Tensor(x) for x with different data types
+
         if isinstance(data, TensorData):
             assert dtype is None or dtype == data.dtype, "dtype doesn't match, and casting isn't supported"
 
-        elif isinstance(data, (int, float)):
-            data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or Tensor.default_type, data)
+        elif isinstance(data, (bool, int, float)): data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or dtypes.from_py(data), data)
 
         elif isinstance(data, list):
             if (d := fully_flatten(data)) and all(isinstance(s, bool) for s in d):
@@ -93,6 +95,9 @@ class Tensor:
             
         elif isinstance(data, bytes):
             data = TensorData(np.frombuffer(data, np.uint8))
+
+        elif data is None: 
+            data = TensorData.loadop(LoadOps.EMPTY, (0,), dtype or dtypes.default_float)
 
         elif isinstance(data, np.ndarray):
             assert dtype is None or dtype.np is not None, f"{dtype} doesn't have a numpy dtype"
@@ -152,7 +157,7 @@ class Tensor:
 
     def item(self) -> float | int:
         return self.numpy().item()
-
+    
     # fmt: off
 
     # ------------------------------------------------------------------------------------------------------------------
