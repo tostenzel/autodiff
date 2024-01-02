@@ -25,7 +25,11 @@ def flatten(list_: Iterator):
     """Flatten a list of lists into a single list."""
     return [item for sublist in list_ for item in sublist]
 
-def fully_flatten(l): return [item for sublist in l for item in (fully_flatten(sublist) if isinstance(sublist, (tuple, list)) else [sublist])]
+
+def fully_flatten(l):
+    return [
+        item for sublist in l for item in (fully_flatten(sublist) if isinstance(sublist, (tuple, list)) else [sublist])
+    ]
 
 
 def argsort(x):

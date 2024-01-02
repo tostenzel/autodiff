@@ -53,14 +53,16 @@ class dtypes:
     def from_np(x) -> DType:
         """Convert a numpy data type to a DType."""
         return DTYPES_DICT[np.dtype(x).name]
-    
+
     @staticmethod
     def fields() -> Dict[str, DType]:
         return DTYPES_DICT
-    
+
     @staticmethod  # NOTE: isinstance(True, int) is True in python
     def from_py(x) -> DType:
-        return dtypes.default_float if isinstance(x, float) else dtypes.bool if isinstance(x, bool) else dtypes.default_int
+        return (
+            dtypes.default_float if isinstance(x, float) else dtypes.bool if isinstance(x, bool) else dtypes.default_int
+        )
 
     # Definition of various data types
     bool: Final[DType] = DType(0, 1, "bool", np.bool_)

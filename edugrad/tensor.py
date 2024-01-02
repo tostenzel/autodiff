@@ -38,8 +38,6 @@ from edugrad._tensor.tensor_reduce import _reduce, tsum, tmax, tmin, mean, std, 
 from edugrad.helpers import argfix, fully_flatten
 
 
-
-
 class Tensor:
     __slots__ = "data", "requires_grad", "grad", "_ctx"
     __deletable__ = ("_ctx",)
@@ -82,7 +80,8 @@ class Tensor:
         if isinstance(data, TensorData):
             assert dtype is None or dtype == data.dtype, "dtype doesn't match, and casting isn't supported"
 
-        elif isinstance(data, (bool, int, float)): data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or dtypes.from_py(data), data)
+        elif isinstance(data, (bool, int, float)):
+            data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or dtypes.from_py(data), data)
 
         elif isinstance(data, list):
             if (d := fully_flatten(data)) and all(isinstance(s, bool) for s in d):
@@ -93,11 +92,11 @@ class Tensor:
                 dtype = dtype or dtypes.default_float
             # NOTE: cast at the end for the dtypes that do not have a numpy dtype
             data = TensorData(np.array(data, dtype.np)).cast(dtype)
-            
+
         elif isinstance(data, bytes):
             data = TensorData(np.frombuffer(data, np.uint8))
 
-        elif data is None: 
+        elif data is None:
             data = TensorData.loadop(LoadOps.EMPTY, (0,), dtype or dtypes.default_float)
 
         elif isinstance(data, np.ndarray):
@@ -158,7 +157,7 @@ class Tensor:
 
     def item(self) -> float | int:
         return self.numpy().item()
-    
+
     # fmt: off
 
     # ------------------------------------------------------------------------------------------------------------------
@@ -235,9 +234,7 @@ class Tensor:
     # movement mlops
 
     def reshape(self, shape, *args) -> Tensor: return reshape(self, shape, *args)
-    # def expand(self, shape, *args) -> Tensor:
-    #     return expand(self, shape, *args)
-    def expand(self, shape, *args) -> Tensor: return function.Expand.apply(self, shape=tuple([x if x != -1 else s for s,x in zip(self.shape, argfix(shape, *args))]))
+    def expand(self, shape, *args) -> Tensor: return expand(self, shape, *args)
 
     def permute(self, order, *args) -> Tensor: return permute(self, order, *args)
     def flip(self, axis, *args) -> Tensor: return flip(self, axis, *args)
