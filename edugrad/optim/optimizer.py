@@ -23,10 +23,11 @@ class Optimizer:
         buffers (List[Tensor]): Tensors without gradient requirement, typically used for internal states of the optimizer.
 
     """
+
     def __init__(self, params: List[Tensor], lr: float):
         # Ensure all parameters are set to require gradients if not already specified
         for x in params:
-            if x.requires_grad is None: 
+            if x.requires_grad is None:
                 x.requires_grad = True
 
         # Deduplicate and filter out tensors that require gradients
@@ -41,16 +42,16 @@ class Optimizer:
 
     def zero_grad(self):
         """Resets the gradients of all optimized parameters to None.
-        
+
         This should be called before each optimization step.
+
         """
         for param in self.params:
             param.grad = None
 
 
 class SGD(Optimizer):
-    """
-    Stochastic Gradient Descent (SGD) optimizer.
+    """Stochastic Gradient Descent (SGD) optimizer.
 
     This optimizer updates model parameters by moving them in the opposite direction of their gradients,
     scaled by the learning rate. Optional momentum and weight decay can be applied.
@@ -77,7 +78,15 @@ class SGD(Optimizer):
         nesterov (bool, optional): Whether to use Nesterov momentum.
 
     """
-    def __init__(self, params: List[Tensor], lr: float=0.001, momentum: int=0, weight_decay: float=0.0, nesterov: bool=False):
+
+    def __init__(
+        self,
+        params: List[Tensor],
+        lr: float = 0.001,
+        momentum: int = 0,
+        weight_decay: float = 0.0,
+        nesterov: bool = False,
+    ):
         super().__init__(params, lr)
         self.momentum = momentum
         self.weight_decay = weight_decay
@@ -89,8 +98,8 @@ class SGD(Optimizer):
     def step(self):
         """Performs a single optimization step.
 
-        Updates the parameters based on the gradients, learning rate, momentum, and weight decay.
-        If Nesterov momentum is used, it modifies the update accordingly.
+        Updates the parameters based on the gradients, learning rate, momentum, and weight decay. If Nesterov momentum
+        is used, it modifies the update accordingly.
 
         """
         for i, t in enumerate(self.params):
@@ -112,14 +121,14 @@ class Adam(Optimizer):
 
     Adam is an algorithm for first-order gradient-based optimization of stochastic
     objective functions, based on adaptive estimates of lower-order moments.
-    
+
     The update rule for each parameter is:
     - Update biased first moment estimate: m = beta1 * m + (1 - beta1) * g
     - Update biased second moment estimate: v = beta2 * v + (1 - beta2) * g^2
     - Compute bias-corrected first moment estimate: m_hat = m / (1 - beta1^t)
     - Compute bias-corrected second moment estimate: v_hat = v / (1 - beta2^t)
     - Update parameters: p = p - lr * m_hat / (sqrt(v_hat) + epsilon)
-    
+
     Where:
     - m and v are estimates of the first moment (mean) and second moment (uncentered variance) of the gradients.
     - g is the gradient.
@@ -146,7 +155,16 @@ class Adam(Optimizer):
         eps (float, optional): Term added to the denominator to improve numerical stability. Default: 1e-6.
 
     """
-    def __init__(self, params: List[Tensor], lr: float=0.001, b1: float=0.9, b2: float=0.999, eps: float=1e-6, wd: float=0.0):
+
+    def __init__(
+        self,
+        params: List[Tensor],
+        lr: float = 0.001,
+        b1: float = 0.9,
+        b2: float = 0.999,
+        eps: float = 1e-6,
+        wd: float = 0.0,
+    ):
         super().__init__(params, lr)
         self.beta1 = b1
         self.beta2 = b2
@@ -161,8 +179,8 @@ class Adam(Optimizer):
     def step(self):
         """Performs a single optimization step.
 
-        Updates the parameters based on the Adam algorithm. Applies adaptive learning rates
-        for each parameter.
+        Updates the parameters based on the Adam algorithm. Applies adaptive learning rates for each parameter.
+
         """
         self.time_step.assign(self.time_step + 1)
         for i, t in enumerate(self.params):
@@ -173,8 +191,8 @@ class Adam(Optimizer):
             self.velocities[i].assign(self.beta2 * self.velocities[i] + (1.0 - self.beta2) * (grad * grad))
 
             # Compute bias-corrected moments
-            m_hat = self.moments[i] / (1.0 - self.beta1 ** self.time_step)
-            v_hat = self.velocities[i] / (1.0 - self.beta2 ** self.time_step)
+            m_hat = self.moments[i] / (1.0 - self.beta1**self.time_step)
+            v_hat = self.velocities[i] / (1.0 - self.beta2**self.time_step)
 
             # Compute the update with weight decay
             update = (m_hat / (v_hat.sqrt() + self.epsilon)) + self.weight_decay * t.detach()

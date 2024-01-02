@@ -1,0 +1,98 @@
+repos:
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v4.5.0
+    hooks:
+    -   id: check-added-large-files
+        args: ['--maxkb=2000']
+    -   id: check-case-conflict
+    -   id: check-merge-conflict
+    -   id: check-vcs-permalinks
+    -   id: check-yaml
+    -   id: debug-statements
+    -   id: end-of-file-fixer
+    -   id: fix-byte-order-marker
+    -   id: mixed-line-ending
+    -   id: no-commit-to-branch
+        args: [--branch, main]
+    -   id: trailing-whitespace
+-   repo: https://github.com/pre-commit/pygrep-hooks
+    rev: v1.10.0
+    hooks:
+    -   id: python-check-blanket-noqa
+    -   id: python-check-mock-methods
+    -   id: python-no-eval
+    -   id: python-no-log-warn
+    # -   id: python-use-type-annotations
+    -   id: text-unicode-replacement-char
+-   repo: https://github.com/asottile/pyupgrade
+    rev: v3.15.0
+    hooks:
+    -   id: pyupgrade
+        args: [--py37-plus]
+# removed b/c it disallows single-line imports to reduce merge conflicts
+# -   repo: https://github.com/asottile/reorder-python-imports
+#     rev: v3.12.0
+#     hooks:
+#     -   id: reorder-python-imports
+-   repo: https://github.com/psf/black
+    rev: 23.11.0
+    hooks:
+    -   id: black
+        args: ["--line-length", "120"]
+-   repo: https://github.com/PyCQA/docformatter
+    rev: v1.7.5
+    hooks:
+    -   id: docformatter
+        args: [--in-place, --wrap-summaries, "120", --wrap-descriptions, "120", --blank]
+-   repo: https://github.com/astral-sh/ruff-pre-commit
+    rev: v0.1.6
+    hooks:
+    -   id: ruff
+        # F821 Undefined name `Tensor`, E731 Do not assign a `lambda` expression, use a `def`
+        args: ["--ignore", "F821"]
+-   repo: https://github.com/dosisod/refurb
+    rev: v1.24.0
+    hooks:
+    -   id: refurb
+        args: [--ignore, FURB126]
+        additional_dependencies:
+                - mypy<1.7 # SEE: https://github.com/dosisod/refurb/issues/305
+
+-   repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.17
+    hooks:
+    -   id: mdformat
+        additional_dependencies: [
+            mdformat-gfm,
+            mdformat-black,
+        ]
+        args: [--wrap, "120"]
+        files: (README\.md)
+-   repo: https://github.com/executablebooks/mdformat
+    rev: 0.7.17
+    hooks:
+    -   id: mdformat
+        additional_dependencies: [
+            mdformat-myst,
+            mdformat-black,
+        ]
+        args: [--wrap, "120"]
+        files: (docs/.)
+        # Exclude files with admonitions.
+        # exclude: |
+        #     (?x)^(
+        #         path/to/file.py
+        #     )$
+-   repo: https://github.com/codespell-project/codespell
+    rev: v2.2.6
+    hooks:
+    -   id: codespell
+-   repo: meta
+    hooks:
+    -   id: check-useless-excludes
+    # -   id: identity  # Prints all files passed to pre-commits. Debugging.
+-   repo: https://github.com/econchick/interrogate
+    rev: 1.5.0
+    hooks:
+    -   id: interrogate
+        args: [-v, --fail-under=0]  # deactivated

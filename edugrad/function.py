@@ -1,7 +1,7 @@
 """Contains the core differentiable functions with forward and backward passes.
 
-These functions ("mid-level ops") are compositions of basic numpy operations wrapped in data.TensorData methods
-("low-level ops").
+These functions ("mid-level ops") are compositions of basic numpy operations wrapped in data.TensorData methods ("low-
+level ops").
 
 Many other methods in the tensor.Tensor class ("high-level ops") are composed of these functions and can therefore be
 backpropagated, too.
@@ -30,7 +30,8 @@ class Function:
         parents (tuple[Tensor]): Tuple of input tensors from which this operation is derived.
 
     """
-    def __init__(self, *tensors: 'Tensor'):
+
+    def __init__(self, *tensors: "Tensor"):
         """Initializes the Function with input tensors, determining if gradients are required.
 
         Args:
@@ -49,8 +50,8 @@ class Function:
     def forward(self, *args, **kwargs):
         """Forward pass of the function.
 
-        Computes the output Tensor from input Tensors. This method should be implemented by all subclasses.
-        It defines the actual operation performed at this node of the computational graph.
+        Computes the output Tensor from input Tensors. This method should be implemented by all subclasses. It defines
+        the actual operation performed at this node of the computational graph.
 
         """
         raise NotImplementedError(f"forward not implemented for {type(self)}")
@@ -58,14 +59,14 @@ class Function:
     def backward(self, *args, **kwargs):
         """Backward pass (gradient computation) of the function.
 
-        Computes the gradient of the function with respect to its inputs. This method should be implemented by all subclasses.
-        It is used during the backward phase of automatic differentiation.
+        Computes the gradient of the function with respect to its inputs. This method should be implemented by all
+        subclasses. It is used during the backward phase of automatic differentiation.
 
         """
         raise RuntimeError(f"backward not implemented for {type(self)}")
 
     @classmethod
-    def apply(fxn: Type['Function'], *x: 'Tensor', **kwargs) -> 'Tensor':
+    def apply(fxn: Type["Function"], *x: "Tensor", **kwargs) -> "Tensor":
         """Apply the function to the given tensors and return the result.
 
         This method handles the setup of the computational graph by creating a context for the function,
@@ -78,8 +79,10 @@ class Function:
 
         Returns:
             Tensor: The result of applying the function.
+
         """
         from edugrad.tensor import Tensor
+
         # Create a context (an instance of the function) for the computation
         ctx = fxn(*x)
         # Compute the forward pass
@@ -92,6 +95,7 @@ class Function:
 
 class Cast(Function):
     """Handles casting of TensorData to a different data type."""
+
     def forward(self, x: TensorData, dtype: DType, bitcast: bool = False) -> TensorData:
         self.input_dtype, self.bitcast = x.dtype, bitcast
         return x.cast(dtype, bitcast)
@@ -103,8 +107,10 @@ class Cast(Function):
 # ----------------------------------------------------------------------------------------------------------------------
 # unary ops
 
+
 class Zero(Function):
     """Represents a function that returns zero regardless of the input."""
+
     def forward(self, x: TensorData) -> TensorData:
         return x.const(0)
 
@@ -126,7 +132,12 @@ class Sin(Function):
         return x.elementwise(UnaryOps.SIN)
 
     def backward(self, grad: TensorData) -> TensorData:
-        return self.x.const(math.pi / 2).elementwise(BinaryOps.SUB, self.x).elementwise(UnaryOps.SIN).elementwise(BinaryOps.MUL, grad)
+        return (
+            self.x.const(math.pi / 2)
+            .elementwise(BinaryOps.SUB, self.x)
+            .elementwise(UnaryOps.SIN)
+            .elementwise(BinaryOps.MUL, grad)
+        )
 
 
 class Relu(Function):
@@ -149,7 +160,7 @@ class Log(Function):
 
 class Exp(Function):
     def forward(self, x: TensorData) -> TensorData:
-        self.ret = x.elementwise(BinaryOps.MUL, x.const(1/math.log(2))).elementwise(UnaryOps.EXP2)
+        self.ret = x.elementwise(BinaryOps.MUL, x.const(1 / math.log(2))).elementwise(UnaryOps.EXP2)
         return self.ret
 
     def backward(self, grad_output: TensorData) -> TensorData:
@@ -170,14 +181,23 @@ class Sqrt(Function):
 # TODO: have the backend automatically find this
 class Sigmoid(Function):
     def forward(self, x: TensorData) -> TensorData:
-        self.ret = x.const(1).elementwise(BinaryOps.DIV, x.const(1).elementwise(BinaryOps.ADD, x.elementwise(BinaryOps.MUL, x.const(-1/math.log(2))).elementwise(UnaryOps.EXP2)))
+        self.ret = x.const(1).elementwise(
+            BinaryOps.DIV,
+            x.const(1).elementwise(
+                BinaryOps.ADD, x.elementwise(BinaryOps.MUL, x.const(-1 / math.log(2))).elementwise(UnaryOps.EXP2)
+            ),
+        )
         return self.ret
 
     def backward(self, grad_output: TensorData) -> TensorData:
-        return self.ret.elementwise(BinaryOps.MUL, self.ret.const(1).elementwise(BinaryOps.SUB, self.ret)).elementwise(BinaryOps.MUL, grad_output)
+        return self.ret.elementwise(BinaryOps.MUL, self.ret.const(1).elementwise(BinaryOps.SUB, self.ret)).elementwise(
+            BinaryOps.MUL, grad_output
+        )
 
-#-----------------------------------------------------------------------------------------------------------------------
+
+# -----------------------------------------------------------------------------------------------------------------------
 # binary ops
+
 
 class Less(Function):
     def forward(self, x: TensorData, y: TensorData) -> TensorData:
@@ -189,8 +209,7 @@ class Add(Function):
         return x.elementwise(BinaryOps.ADD, y)
 
     def backward(self, grad_output: TensorData) -> Tuple[Optional[TensorData], Optional[TensorData]]:
-        return grad_output if self.needs_input_grad[0] else None, \
-            grad_output if self.needs_input_grad[1] else None
+        return grad_output if self.needs_input_grad[0] else None, grad_output if self.needs_input_grad[1] else None
 
 
 class Sub(Function):
@@ -198,8 +217,10 @@ class Sub(Function):
         return x.elementwise(BinaryOps.SUB, y)
 
     def backward(self, grad_output: TensorData) -> Tuple[Optional[TensorData], Optional[TensorData]]:
-        return grad_output if self.needs_input_grad[0] else None, \
-            grad_output.elementwise(UnaryOps.NEG) if self.needs_input_grad[1] else None
+        return (
+            grad_output if self.needs_input_grad[0] else None,
+            grad_output.elementwise(UnaryOps.NEG) if self.needs_input_grad[1] else None,
+        )
 
 
 class Mul(Function):
@@ -208,8 +229,10 @@ class Mul(Function):
         return x.elementwise(BinaryOps.MUL, y)
 
     def backward(self, grad_output: TensorData) -> Tuple[Optional[TensorData], Optional[TensorData]]:
-        return self.y.elementwise(BinaryOps.MUL, grad_output) if self.needs_input_grad[0] else None, \
-            self.x.elementwise(BinaryOps.MUL, grad_output) if self.needs_input_grad[1] else None
+        return (
+            self.y.elementwise(BinaryOps.MUL, grad_output) if self.needs_input_grad[0] else None,
+            self.x.elementwise(BinaryOps.MUL, grad_output) if self.needs_input_grad[1] else None,
+        )
 
 
 class Div(Function):
@@ -218,28 +241,43 @@ class Div(Function):
         return x.elementwise(BinaryOps.DIV, y)
 
     def backward(self, grad_output: TensorData) -> Tuple[Optional[TensorData], Optional[TensorData]]:
-        return grad_output.elementwise(BinaryOps.DIV, self.y) if self.needs_input_grad[0] else None, \
-            grad_output.elementwise(UnaryOps.NEG).elementwise(BinaryOps.MUL, self.x).elementwise(BinaryOps.DIV, self.y.elementwise(BinaryOps.MUL, self.y)) if self.needs_input_grad[1] else None
+        return (
+            grad_output.elementwise(BinaryOps.DIV, self.y) if self.needs_input_grad[0] else None,
+            grad_output.elementwise(UnaryOps.NEG)
+            .elementwise(BinaryOps.MUL, self.x)
+            .elementwise(BinaryOps.DIV, self.y.elementwise(BinaryOps.MUL, self.y))
+            if self.needs_input_grad[1]
+            else None,
+        )
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # ternary ops
 
+
 class Where(Function):
     """Ternary conditional operation."""
+
     def forward(self, x: TensorData, y: TensorData, z: TensorData) -> TensorData:
         self.x = x
         return x.elementwise(TernaryOps.WHERE, y, z)
 
     def backward(self, grad_output: TensorData) -> Tuple[None, Optional[TensorData], Optional[TensorData]]:
-        return None, \
-            self.x.elementwise(TernaryOps.WHERE, grad_output, grad_output.const(0)) if self.needs_input_grad[1] else None, \
-            self.x.elementwise(TernaryOps.WHERE, grad_output.const(0), grad_output) if self.needs_input_grad[2] else None
+        return (
+            None,
+            self.x.elementwise(TernaryOps.WHERE, grad_output, grad_output.const(0))
+            if self.needs_input_grad[1]
+            else None,
+            self.x.elementwise(TernaryOps.WHERE, grad_output.const(0), grad_output)
+            if self.needs_input_grad[2]
+            else None,
+        )
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # reduce ops
-  
+
+
 class Sum(Function):
     def forward(self, x: TensorData, new_shape: Tuple[int, ...]) -> TensorData:
         self.input_shape = x.shape
@@ -256,13 +294,16 @@ class Max(Function):
 
     def backward(self, grad_output: TensorData) -> TensorData:
         # 1s in locations where the max was chosen (can be two locations)
-        max_is_1s = self.x.const(1.0).elementwise(BinaryOps.SUB, self.x.elementwise(BinaryOps.CMPLT, self.ret.expand(self.x.shape)))
+        max_is_1s = self.x.const(1.0).elementwise(
+            BinaryOps.SUB, self.x.elementwise(BinaryOps.CMPLT, self.ret.expand(self.x.shape))
+        )
         div = max_is_1s.reduce(ReduceOps.SUM, grad_output.shape).expand(self.x.shape)
         return max_is_1s.elementwise(BinaryOps.DIV, div).elementwise(BinaryOps.MUL, grad_output.expand(self.x.shape))
 
 
 # ----------------------------------------------------------------------------------------------------------------------
 # movement ops
+
 
 # NOTE: this is sum in reverse
 class Expand(Function):
@@ -294,7 +335,7 @@ class Permute(Function):
 
 class Pad(Function):
     def forward(self, x: TensorData, arg: Tuple[Tuple[int, int], ...]) -> TensorData:
-        self.narg = tuple([(p[0], s+p[0]) for s,p in zip(x.shape, arg)])
+        self.narg = tuple([(p[0], s + p[0]) for s, p in zip(x.shape, arg)])
         return x.pad(arg)
 
     def backward(self, grad_output: TensorData) -> TensorData:
@@ -303,11 +344,14 @@ class Pad(Function):
 
 class Shrink(Function):
     """Shrink operation."""
+
     def forward(self, x: TensorData, arg: Tuple[Tuple[shape_int, shape_int], ...]) -> TensorData:
-        self.narg = tuple([(p[0], s-p[1]) for s,p in zip(x.shape, arg)])
+        self.narg = tuple([(p[0], s - p[1]) for s, p in zip(x.shape, arg)])
         return x.shrink(arg)
 
     def backward(self, grad_output: TensorData) -> TensorData:
-        assert all(isinstance(x[0], int) and isinstance(x[1], int) for x in self.narg), "symbolic shrink does not support backward"
+        assert all(
+            isinstance(x[0], int) and isinstance(x[1], int) for x in self.narg
+        ), "symbolic shrink does not support backward"
         # need this cast because mypy cannot narrow the type even with assert
         return grad_output.pad(cast(Tuple[Tuple[int, int], ...], self.narg))
