@@ -2,7 +2,7 @@ import numpy as np
 import torch
 import unittest, copy
 from edugrad import Tensor
-from edugrad.helpers import dtypes
+from edugrad.dtypes import dtypes
 #from tinygrad.helpers import temp
 
 from tests.gradcheck import numerical_jacobian, jacobian, gradcheck

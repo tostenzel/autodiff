@@ -2,7 +2,7 @@ from __future__ import annotations
 
 import math
 
-from edugrad.helpers import dtypes
+from edugrad.dtypes import dtypes
 import edugrad.function as function
 
 

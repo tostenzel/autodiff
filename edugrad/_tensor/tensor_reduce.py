@@ -2,7 +2,8 @@
 
 from __future__ import annotations
 
-from edugrad.helpers import dtypes, prod, all_int
+from edugrad.helpers import prod, all_int
+from edugrad.dtypes import dtypes
 from edugrad.function import Function
 import edugrad.function as function
 

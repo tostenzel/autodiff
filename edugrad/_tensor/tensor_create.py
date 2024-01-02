@@ -2,7 +2,8 @@ from __future__ import annotations
 import time
 import math
 
-from edugrad.helpers import argfix, DType, prod, shape_int, dtypes
+from edugrad.helpers import argfix, prod, shape_int
+from edugrad.dtypes import DType, dtypes
 from edugrad.data import TensorData
 from edugrad.ops import LoadOps
 

@@ -3,7 +3,8 @@
 from __future__ import annotations
 import math
 
-from edugrad.helpers import make_pair, flatten, dtypes, all_int, shape_int
+from edugrad.helpers import make_pair, flatten, all_int, shape_int
+from edugrad.dtypes import dtypes
 
 
 # processing ops

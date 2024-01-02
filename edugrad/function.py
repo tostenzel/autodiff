@@ -11,7 +11,8 @@ All these functions are applied to and return TensorData objects that can be cal
 """
 import math
 from typing import Tuple, Optional, cast
-from edugrad.helpers import argsort, DType, shape_int
+from edugrad.helpers import argsort, shape_int
+from edugrad.dtypes import DType
 from edugrad.ops import UnaryOps, BinaryOps, TernaryOps, ReduceOps
 from edugrad.data import TensorData
 
