@@ -356,3 +356,12 @@ class Shrink(Function):
         ), "symbolic shrink does not support backward"
         # need this cast because mypy cannot narrow the type even with assert
         return grad_output.pad(cast(Tuple[Tuple[int, int], ...], self.narg))
+
+
+class Flip(Function):
+    def forward(self, x: TensorData, axis: Tuple[int, ...]) -> TensorData:
+        self.arg = tuple([-1 if i in set(axis) else 1 for i in range(len(x.shape))])
+        return x.stride(self.arg)
+
+    def backward(self, grad_output: TensorData) -> TensorData:
+        return grad_output.stride(self.arg)
