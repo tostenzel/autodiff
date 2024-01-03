@@ -44,10 +44,11 @@ def shrink(tensor: Tensor, arg: tuple[tuple[shape_int, shape_int] | None, ...]) 
 
 
 def pad(tensor: Tensor, arg: tuple[tuple[int, int] | None, ...], value: float) -> Tensor:
+    from edugrad.tensor import Tensor
     if all(x is None or x == (0, 0) for x in arg):
         return tensor
     ret = function.Pad.apply(tensor, arg=(narg := tuple(x if x is not None else (0, 0) for x in arg)))
-    return ret if 0 == value else ret + function.Pad.apply("Tensor".ones_like(tensor), arg=narg).where(0, value)
+    return ret if 0 == value else ret + function.Pad.apply(Tensor.ones_like(tensor), arg=narg).where(0, value)
 
 
 # (padding_left, padding_right, padding_top, padding_bottom)

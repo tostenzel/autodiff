@@ -61,8 +61,7 @@ def tmax(tensor: Tensor, axis, keepdim):
 
 def tmin(tensor: Tensor, axis, keepdim):
     """Computes the minimum value of elements over the specified axis."""
-    return -((-tensor).tmax((-tensor), axis=axis, keepdim=keepdim))
-
+    return -tmax((-tensor), axis=axis, keepdim=keepdim)
 
 def mean(tensor: Tensor, axis, keepdim):
     """Computes the mean of elements over the specified axis."""
