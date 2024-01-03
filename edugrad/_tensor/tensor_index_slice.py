@@ -1,7 +1,8 @@
 from typing import Sequence, Optional, Tuple
 from collections import defaultdict
 
-from edugrad.helpers import shape_int, dtypes
+from edugrad.dtypes import dtypes
+from edugrad.helpers import shape_int
 from edugrad._tensor.tensor_reshape import pad, _flatten
 
 

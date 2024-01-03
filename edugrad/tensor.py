@@ -13,7 +13,8 @@ import time
 from typing import ClassVar, Sequence, Any
 import numpy as np
 
-from edugrad.helpers import getenv, DEBUG, DType, dtypes, prod, all_int, round_up, shape_int
+from edugrad.dtypes import DType, dtypes
+from edugrad.helpers import getenv, DEBUG, prod, all_int, round_up, shape_int
 from edugrad.data import TensorData
 from edugrad.ops import LoadOps
 from edugrad.function import Function
