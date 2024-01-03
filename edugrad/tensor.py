@@ -10,7 +10,9 @@ The high-level ops support many things that you could expect from a tensor libra
 # inspired by https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
 from __future__ import annotations
 import time
+import math
 from typing import ClassVar, Sequence, Any
+
 import numpy as np
 
 from edugrad.dtypes import DType, dtypes
@@ -251,8 +253,7 @@ class Tensor:
     # ------------------------------------------------------------------------------------------------------------------
     # tensor_combine_segment.py
 
-    def cat(self, *args, dim=0) -> Tensor: return cat(self, *args, dim)
-    @staticmethod
+    def cat(self, *args, dim=0) -> Tensor: return cat(self, *args, dim=dim)    @staticmethod
     def stack(tensors, dim=0) -> Tensor: stack(tensors, dim)
     def repeat(self, repeats) -> Tensor: repeat(self, repeats)
     def chunk(self, num:int, dim:int=0) -> list[Tensor]: chunk(self, num, dim)
@@ -323,11 +324,13 @@ class Tensor:
     def relu(self): return function.Relu.apply(self)
     def sigmoid(self): return function.Sigmoid.apply(self)
     def sqrt(self): return function.Sqrt.apply(self)
+    def sin(self): return function.Sin.apply(self)
+    def cos(self): return ((math.pi/2)-self).sin()
 
     # math functions (unary) skipped
 
     # activation functions (unary) skipped
-
+    def elu(self, alpha=1.0): return self.relu() - alpha*(1-self.exp()).relu()
     # ------------------------------------------------------------------------------------------------------------------
     # tensor_bradcasted_binary_mlops.py
 
