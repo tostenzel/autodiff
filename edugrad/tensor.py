@@ -72,16 +72,22 @@ class Tensor:
         # internal variables used for autograd graph construction
         self._ctx: Function | None = None
 
+        # --------------------------------------------------------------------------------------------------------------
+        # Handles Tensor(x) for x with different data types.
+        # We cast x = list(y) up to float32 for every case
+
         if isinstance(data, TensorData):
             assert dtype is None or dtype == data.dtype, "dtype doesn't match, and casting isn't supported"
 
-        elif isinstance(data, (int, float)):
-            data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or Tensor.default_type, data)
-
-        elif data is None or data.__class__ is list:
-            assert dtype is None or dtype.np is not None, f"{dtype} doesn't have a numpy dtype"
-            data = TensorData(np.array([] if data is None else data, dtype=(dtype or Tensor.default_type).np))
-
+        elif isinstance(data, (bool, int, float)):
+            data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or dtypes.from_py(data), data)
+    
+        elif isinstance(data, list):
+            data = TensorData(np.array(data, dtype=(dtype or Tensor.default_type).np))
+    
+        elif data is None:
+            data = TensorData.loadop(LoadOps.EMPTY, (0,), dtype or dtypes.default_float)
+        
         elif isinstance(data, bytes):
             data = TensorData(np.frombuffer(data, np.uint8))
 
@@ -253,7 +259,8 @@ class Tensor:
     # ------------------------------------------------------------------------------------------------------------------
     # tensor_combine_segment.py
 
-    def cat(self, *args, dim=0) -> Tensor: return cat(self, *args, dim=dim)    @staticmethod
+    def cat(self, *args, dim=0) -> Tensor: return cat(self, *args, dim=dim)
+    @staticmethod
     def stack(tensors, dim=0) -> Tensor: stack(tensors, dim)
     def repeat(self, repeats) -> Tensor: repeat(self, repeats)
     def chunk(self, num:int, dim:int=0) -> list[Tensor]: chunk(self, num, dim)

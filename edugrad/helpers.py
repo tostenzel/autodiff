@@ -27,6 +27,12 @@ def flatten(list_: Iterator):
     return [item for sublist in list_ for item in sublist]
 
 
+def fully_flatten(l):
+    return [
+        item for sublist in l for item in (fully_flatten(sublist) if isinstance(sublist, (tuple, list)) else [sublist])
+    ]
+
+
 def argsort(x):
     """Return the indices that would sort an array.
 
