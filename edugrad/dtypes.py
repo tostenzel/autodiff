@@ -63,5 +63,5 @@ class dtypes:
 DTYPES_DICT = {
     k: v
     for k, v in dtypes.__dict__.items()
-    if not k.startswith("__") and not callable(v) and not v.__class__ == staticmethod
+    if not k.startswith("__")  and not k.startswith("only") and not callable(v) and not v.__class__ == staticmethod
 }

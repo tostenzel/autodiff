@@ -15,7 +15,7 @@ from typing import ClassVar, Sequence, Any, Type
 
 import numpy as np
 
-from edugrad.dtypes import DType, dtypes
+from edugrad.dtypes import DType, dtypes, DTYPES_DICT
 from edugrad.helpers import getenv, DEBUG, prod, all_int, round_up, shape_int
 from edugrad.data import TensorData
 from edugrad.ops import LoadOps
@@ -60,7 +60,7 @@ class Tensor:
         dtype: DType | None = None,
         requires_grad: bool | None = None,
     ):
-        assert dtype is None or isinstance(dtype, DType), f"invalid dtype {dtype}"
+        assert dtype is None or isinstance(dtype, DType), f"Invalid dtype {dtype}. edugrad only supports {list(DTYPES_DICT.keys())}"
 
         # tensors have gradients, buffers do not
         self.grad: Tensor | None = None
