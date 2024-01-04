@@ -52,8 +52,8 @@ class dtypes:
 
     # Definition of various data types
     bool: Final[DType] = DType(0, 1, "bool", np.bool_)
-    float32: Final[DType] = DType(10, 4, "float", np.float32)
-    int32: Final[DType] = DType(5, 4, "int", np.int32)
+    float32: Final[DType] = DType(2, 4, "float", np.float32)
+    int32: Final[DType] = DType(1, 4, "int", np.int32)
  
     only_float: ClassVar[DType] = float32
     only_int: ClassVar[DType] = int32

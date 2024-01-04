@@ -1,7 +1,10 @@
 """Defines the TensorData class, a container for tensor data (tensor.Tensor.data), represented as numpy arrays.
 
 It facilitates direct manipulation of tensor data through a range of basic operation ("low-level ops"). These operations
-are building blocks for defining forward and backward passes of differentiable function.Functions. ("mid-level ops")
+are building blocks for defining forward and backward passes of differentiable function.Functions. ("mid-level ops").
+
+For simplicity and to ensure that compatible dtypes operate with each other, we enforce two of the three supported
+dtypes (bool and float32) with a typecast in each elementwise operation.
 
 The ops are executed immediately on the CPU using numpy. This approach contrasts with deferred computation models that
 analyze subsequent delayed operations in order to find an optimized equivalent final optimization at the point where

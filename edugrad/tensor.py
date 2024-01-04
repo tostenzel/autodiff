@@ -11,7 +11,7 @@ The high-level ops support many things that you could expect from a tensor libra
 from __future__ import annotations
 import time
 import math
-from typing import ClassVar, Sequence, Any
+from typing import ClassVar, Sequence, Any, Type
 
 import numpy as np
 
@@ -74,7 +74,7 @@ class Tensor:
 
         # --------------------------------------------------------------------------------------------------------------
         # Handles Tensor(x) for x with different data types.
-        # We cast x = list(y) up to float32 for every case
+        # We cast x = list(y) up to float32 (default_type) for every type that y can have
 
         if isinstance(data, TensorData):
             assert dtype is None or dtype == data.dtype, "dtype doesn't match, and casting isn't supported"
@@ -87,9 +87,6 @@ class Tensor:
     
         elif data is None:
             data = TensorData.loadop(LoadOps.EMPTY, (0,), dtype or dtypes.only_float)
-        
-        elif isinstance(data, bytes):
-            data = TensorData(np.frombuffer(data, np.uint8))
 
         elif isinstance(data, np.ndarray):
             assert dtype is None or dtype.np is not None, f"{dtype} doesn't have a numpy dtype"
