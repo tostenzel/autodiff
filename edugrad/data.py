@@ -1,7 +1,10 @@
 """Defines the TensorData class, a container for tensor data (tensor.Tensor.data), represented as numpy arrays.
 
 It facilitates direct manipulation of tensor data through a range of basic operation ("low-level ops"). These operations
-are building blocks for defining forward and backward passes of differentiable function.Functions. ("mid-level ops")
+are building blocks for defining forward and backward passes of differentiable function.Functions. ("mid-level ops").
+
+For simplicity and to ensure that compatible dtypes operate with each other, we enforce two of the three supported
+dtypes (bool and float32) with a typecast in each elementwise operation.
 
 The ops are executed immediately on the CPU using numpy. This approach contrasts with deferred computation models that
 analyze subsequent delayed operations in order to find an optimized equivalent final optimization at the point where
@@ -13,7 +16,8 @@ If you would like to use another backend for storing and computing data, it woul
 from typing import Tuple
 import numpy as np
 from edugrad.ops import UnaryOps, BinaryOps, TernaryOps, ReduceOps, LoadOps  # consider reading the docs there
-from edugrad.helpers import DType, dtypes, DEBUG
+from edugrad.helpers import DEBUG
+from edugrad.dtypes import DType, dtypes
 
 
 class TensorData:
@@ -76,22 +80,22 @@ class TensorData:
     def elementwise(self, op, *srcs: "TensorData"):
         """Perform a unary, binary, or ternary elementwise operation on the data."""
         unary_ops = {
-            UnaryOps.NEG: np.negative,
-            UnaryOps.EXP2: np.exp2,
-            UnaryOps.LOG2: np.log2,
-            UnaryOps.SIN: np.sin,
-            UnaryOps.SQRT: np.sqrt,
-        }
+                UnaryOps.NEG: lambda x: np.negative(x).astype(dtypes.only_float.np),
+                UnaryOps.EXP2: lambda x: np.exp2(x).astype(dtypes.only_float.np),
+                UnaryOps.LOG2: lambda x: np.log2(x).astype(dtypes.only_float.np),
+                UnaryOps.SIN: lambda x: np.sin(x).astype(dtypes.only_float.np),
+                UnaryOps.SQRT: lambda x: np.sqrt(x).astype(dtypes.only_float.np),
+            }
         binary_ops = {
-            BinaryOps.ADD: np.add,
-            BinaryOps.SUB: np.subtract,
-            BinaryOps.MUL: np.multiply,
-            BinaryOps.DIV: np.divide,
-            BinaryOps.MAX: np.maximum,
-            BinaryOps.CMPLT: np.less,
+            BinaryOps.ADD: lambda x, y: np.add(x, y).astype(dtypes.only_float.np),
+            BinaryOps.SUB: lambda x, y: np.subtract(x, y).astype(dtypes.only_float.np),
+            BinaryOps.MUL: lambda x, y: np.multiply(x, y).astype(dtypes.only_float.np),
+            BinaryOps.DIV: lambda x, y: np.divide(x, y).astype(dtypes.only_float.np),
+            BinaryOps.MAX: lambda x, y: np.maximum(x, y).astype(dtypes.only_float.np),
+            BinaryOps.CMPLT: lambda x, y: np.less(x, y).astype(np.bool_),
         }
         ternary_ops = {
-            TernaryOps.WHERE: np.where,
+            TernaryOps.WHERE: lambda x, y, z: np.where(x, y, z).astype(dtypes.only_float.np),
         }
 
         if op in unary_ops:

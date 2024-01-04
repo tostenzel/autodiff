@@ -10,10 +10,13 @@ The high-level ops support many things that you could expect from a tensor libra
 # inspired by https://github.com/karpathy/micrograd/blob/master/micrograd/engine.py
 from __future__ import annotations
 import time
-from typing import ClassVar, Sequence, Any
+import math
+from typing import ClassVar, Sequence, Any, Type
+
 import numpy as np
 
-from edugrad.helpers import getenv, DEBUG, DType, dtypes, prod, all_int, round_up, shape_int
+from edugrad.dtypes import DType, dtypes, DTYPES_DICT
+from edugrad.helpers import getenv, DEBUG, prod, all_int, round_up, shape_int
 from edugrad.data import TensorData
 from edugrad.ops import LoadOps
 from edugrad.function import Function
@@ -27,7 +30,7 @@ from edugrad._tensor.tensor_create import full, zeros, ones, arange, eye, full_l
 from edugrad._tensor.tensor_combine_segment import cat, stack, repeat, chunk
 from edugrad._tensor.tensor_reshape import reshape, expand, permute, flip, shrink, pad, pad2d, transpose, _flatten, squeeze, unsqueeze
 from edugrad._tensor.tensor_nn import _pool, avg_pool2d, max_pool2d, conv2d, linear, binary_crossentropy, binary_crossentropy_logits, sparse_categorical_crossentropy
-from edugrad._tensor.tensor_index_slice import __getitem__, __setitem__, slice, gather
+from edugrad._tensor.tensor_index_slice import __getitem__, __setitem__, tslice, gather
 from edugrad._tensor.tensor_broadcasted_binary_mlops import _broadcasted, _to_float, add, sub, mul, div, pow, matmul, maximum, minimum, where
 from edugrad._tensor.tensor_reduce import _reduce, tsum, tmax, tmin, mean, std, _softmax, softmax, log_softmax, argmax, argmin
 # fmt: on
@@ -57,7 +60,7 @@ class Tensor:
         dtype: DType | None = None,
         requires_grad: bool | None = None,
     ):
-        assert dtype is None or isinstance(dtype, DType), f"invalid dtype {dtype}"
+        assert dtype is None or isinstance(dtype, DType), f"Invalid dtype {dtype}. edugrad only supports {list(DTYPES_DICT.keys())}"
 
         # tensors have gradients, buffers do not
         self.grad: Tensor | None = None
@@ -69,18 +72,21 @@ class Tensor:
         # internal variables used for autograd graph construction
         self._ctx: Function | None = None
 
+        # --------------------------------------------------------------------------------------------------------------
+        # Handles Tensor(x) for x with different data types.
+        # We cast x = list(y) up to float32 (default_type) for every type that y can have if no other type is provided
+
         if isinstance(data, TensorData):
             assert dtype is None or dtype == data.dtype, "dtype doesn't match, and casting isn't supported"
 
-        elif isinstance(data, (int, float)):
-            data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or Tensor.default_type, data)
-
-        elif data is None or data.__class__ is list:
-            assert dtype is None or dtype.np is not None, f"{dtype} doesn't have a numpy dtype"
-            data = TensorData(np.array([] if data is None else data, dtype=(dtype or Tensor.default_type).np))
-
-        elif isinstance(data, bytes):
-            data = TensorData(np.frombuffer(data, np.uint8))
+        elif isinstance(data, (bool, int, float)):
+            data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or dtypes.from_py(data), data)
+    
+        elif isinstance(data, list):
+            data = TensorData(np.array(data, dtype=(dtype or Tensor.default_type).np))
+    
+        elif data is None:
+            data = TensorData.loadop(LoadOps.EMPTY, (0,), dtype or dtypes.only_float)
 
         elif isinstance(data, np.ndarray):
             assert dtype is None or dtype.np is not None, f"{dtype} doesn't have a numpy dtype"
@@ -220,7 +226,7 @@ class Tensor:
     def expand(self, shape, *args) -> Tensor: return expand(self, shape, *args)
     def permute(self, order, *args) -> Tensor: return permute(self, order, *args)
     def flip(self, axis, *args) -> Tensor: return flip(self, axis, *args)
-    def pad(self, arg:tuple[tuple[int, int] | None, ...], value:float=0.0) -> Tensor: pad(self, arg, value)
+    def pad(self, arg:tuple[tuple[int, int] | None, ...], value:float=0.0) -> Tensor: return pad(self, arg, value)
     # (padding_left, padding_right, padding_top, padding_bottom)
     def pad2d(self, padding:list[int] | tuple[int, ...], value:float=0) -> Tensor: return pad2d(self, padding, value)
     def shrink(self, arg:tuple[tuple[shape_int, shape_int] | None, ...]) -> Tensor: return shrink(self, arg)
@@ -243,14 +249,14 @@ class Tensor:
 
     # NOTE: using slice is discouraged and things should migrate to pad and shrink
     def slice(self, arg:Sequence[tuple[int, shape_int] | None], value:float=0) -> Tensor:
-        return slice(self, arg, value)
+        return tslice(self, arg, value)
 
     def gather(self: Tensor, idx: Tensor, dim: int) -> Tensor: return gather(self, idx, dim)
 
     # ------------------------------------------------------------------------------------------------------------------
     # tensor_combine_segment.py
 
-    def cat(self, *args, dim=0) -> Tensor: return cat(self, *args, dim)
+    def cat(self, *args, dim=0) -> Tensor: return cat(self, *args, dim=dim)
     @staticmethod
     def stack(tensors, dim=0) -> Tensor: stack(tensors, dim)
     def repeat(self, repeats) -> Tensor: repeat(self, repeats)
@@ -322,11 +328,13 @@ class Tensor:
     def relu(self): return function.Relu.apply(self)
     def sigmoid(self): return function.Sigmoid.apply(self)
     def sqrt(self): return function.Sqrt.apply(self)
+    def sin(self): return function.Sin.apply(self)
+    def cos(self): return ((math.pi/2)-self).sin()
 
     # math functions (unary) skipped
 
     # activation functions (unary) skipped
-
+    def elu(self, alpha=1.0): return self.relu() - alpha*(1-self.exp()).relu()
     # ------------------------------------------------------------------------------------------------------------------
     # tensor_bradcasted_binary_mlops.py
 

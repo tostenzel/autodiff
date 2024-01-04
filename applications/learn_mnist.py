@@ -13,17 +13,18 @@ def fetch_mnist(for_convolution=True):
 
     # parse = lambda file: np.frombuffer(gzip.open(file).read(), dtype=np.uint8).copy()
     BASE = os.path.dirname(__file__) + "/datasets"
+    
     X_train = parse(BASE + "/mnist/train-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28 * 28)).astype(np.float32)
-    Y_train = parse(BASE + "/mnist/train-labels-idx1-ubyte.gz")[8:]
+    Y_train = parse(BASE + "/mnist/train-labels-idx1-ubyte.gz")[8:].astype(np.int32)
     X_test = parse(BASE + "/mnist/t10k-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28 * 28)).astype(np.float32)
-    Y_test = parse(BASE + "/mnist/t10k-labels-idx1-ubyte.gz")[8:]
+    Y_test = parse(BASE + "/mnist/t10k-labels-idx1-ubyte.gz")[8:].astype(np.int32)
     if for_convolution:
         X_train = X_train.reshape(-1, 1, 28, 28)
         X_test = X_test.reshape(-1, 1, 28, 28)
     return X_train, Y_train, X_test, Y_test
 
 
-class TinyConvNet:
+class ConvNet:
     def __init__(self):
         # https://keras.io/examples/vision/mnist_convnet/
         kernel_sz = 3
@@ -39,21 +40,16 @@ class TinyConvNet:
         return x.dot(self.l1).log_softmax()
 
 
-if __name__ == "__main__":
-    NUM_STEPS = 100
-    BS = 128
-    LR = 0.001
-
+def train_and_evaluate_mnist(num_steps=100, batch_size=128, learning_rate=0.001):
     X_train, Y_train, X_test, Y_test = fetch_mnist()
-    model = TinyConvNet()
-    opt = optimizer.Adam([model.c1, model.c2, model.l1], lr=LR)
+    model = ConvNet()
+    opt = optimizer.Adam([model.c1, model.c2, model.l1], lr=learning_rate)
 
     with Tensor.train():
-        for step in range(NUM_STEPS):
-            # Get sample batches
-            samp = np.random.randint(0, X_train.shape[0], size=(BS))
+        for step in range(num_steps):
+            samp = np.random.randint(0, X_train.shape[0], size=(batch_size))
             xb, yb = Tensor(X_train[samp], requires_grad=False), Tensor(Y_train[samp])
-            # Train
+            
             out = model(xb)
             loss = out.sparse_categorical_crossentropy(yb)
             opt.zero_grad()
@@ -66,11 +62,18 @@ if __name__ == "__main__":
                 print(f"Step {step+1:<3} | Loss: {loss.numpy():.4f} | Train Acc: {acc:.3f}")
 
     # Evaluate Test
-    acc = 0
-    for i in range(0, len(Y_test), BS):
-        xb, yb = Tensor(X_test[i : i + BS], requires_grad=False), Tensor(Y_test[i : i + BS])
+    test_accuracy = 0
+    for i in range(0, len(Y_test), batch_size):
+        xb, yb = Tensor(X_test[i : i + batch_size], requires_grad=False), Tensor(Y_test[i : i + batch_size])
         out = model(xb)
         preds = out.argmax(axis=-1)
-        acc += (preds == yb).sum().numpy()
-    acc /= len(Y_test)
-    print(f"Test Acc: {acc:.3f}")
+        test_accuracy += (preds == yb).sum().numpy()
+    test_accuracy /= len(Y_test)
+    return test_accuracy
+
+
+
+if __name__ == "__main__":
+    # Only execute if this script is run directly
+    test_accuracy = train_and_evaluate_mnist()
+    print(f"Test Acc: {test_accuracy:.3f}")

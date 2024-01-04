@@ -2,7 +2,9 @@
 
 from __future__ import annotations
 
-from edugrad.helpers import dtypes, prod, all_int
+
+from edugrad.dtypes import dtypes
+from edugrad.helpers import prod, all_int
 from edugrad.function import Function
 import edugrad.function as function
 
@@ -44,8 +46,8 @@ def _reduce(self, fxn: type[Function], axis: int | tuple[int, ...] | None, keepd
     return ret if keepdim else ret.reshape(shape=shape)
 
 
+# ----------------------------------------------------------------------------------------------------------------------
 # Functions that use the generic _reduce method for specific reduction operations.
-
 
 def tsum(tensor: Tensor, axis, keepdim):
     """Computes the sum of elements over the specified axis."""
@@ -59,8 +61,7 @@ def tmax(tensor: Tensor, axis, keepdim):
 
 def tmin(tensor: Tensor, axis, keepdim):
     """Computes the minimum value of elements over the specified axis."""
-    return -((-tensor).tmax((-tensor), axis=axis, keepdim=keepdim))
-
+    return -tmax((-tensor), axis=axis, keepdim=keepdim)
 
 def mean(tensor: Tensor, axis, keepdim):
     """Computes the mean of elements over the specified axis."""
@@ -75,9 +76,8 @@ def std(tensor: Tensor, axis, keepdim, correction):
     square_sum = ((tensor - tensor.mean(axis=axis, keepdim=True)).square()).sum(axis=axis, keepdim=keepdim)
     return square_sum.div(prod(tensor.shape) / prod(square_sum.shape) - correction).sqrt()
 
-
+# ----------------------------------------------------------------------------------------------------------------------
 # Functions for softmax and its logarithmic variant, as well as argmax and argmin operations.
-
 
 def _softmax(tensor: Tensor, axis):
     """Helper function to compute softmax components."""

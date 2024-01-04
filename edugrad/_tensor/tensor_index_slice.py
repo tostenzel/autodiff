@@ -1,7 +1,8 @@
 from typing import Sequence, Optional, Tuple
 from collections import defaultdict
 
-from edugrad.helpers import shape_int, dtypes
+from edugrad.dtypes import dtypes
+from edugrad.helpers import shape_int
 from edugrad._tensor.tensor_reshape import pad, _flatten
 
 
@@ -35,7 +36,7 @@ from edugrad._tensor.tensor_reshape import pad, _flatten
 def __getitem__(
     tensor: "Tensor", val
 ) -> "Tensor":  # val: Union[int, slice, Tensor, None, Ellipsis, Tuple[Union[int, slice, Tensor, None, Ellipsis], ...]]
-    from edugrad._tensor import Tensor
+    from edugrad.tensor import Tensor
 
     def normalize_int(e, i, dim_sz):
         if -dim_sz <= e < dim_sz:
@@ -141,10 +142,11 @@ def __setitem__(tensor: "Tensor", s, v):
 
 
 # NOTE: using slice is discouraged and things should migrate to pad and shrink
-def slice(tensor: "Tensor", arg: Sequence[Optional[Tuple[int, shape_int]]], value: float) -> "Tensor":
+def tslice(tensor: "Tensor", arg: Sequence[Optional[Tuple[int, shape_int]]], value: float = 0) -> "Tensor":
+    from edugrad.tensor import Tensor
     arg_ = tuple([a if a is not None else (0, s) for s, a in zip(tensor.shape, arg)])
     padding = tuple([(max(0, -p[0]), max(0, p[1] - tensor.shape[i])) for i, p in enumerate(arg_)])
-    return pad(tensor, padding, value=value).shrink(
+    return tensor.pad(padding, value=value).shrink(
         tuple([(p[0] + padding[i][0], p[1] + padding[i][0]) for i, p in enumerate(arg_)])
     )
     # FIXME: tensor.pad(padding, value=value)... returns None...
