@@ -1,10 +1,9 @@
 import numpy as np
 import torch
-import unittest, copy, pytest
+import unittest, copy
 from edugrad import Tensor
 from edugrad.dtypes import dtypes
 
-# from tinygrad.helpers import temp
 
 from tests.gradcheck import numerical_jacobian, jacobian, gradcheck
 
@@ -158,7 +157,6 @@ class TestTinygrad(unittest.TestCase):
         finally:
             Tensor.rand = original_rand
 
-    @pytest.mark.skip(reason="We cast lists of all dtypes up to floats when moving to Tensor")
     def test_zeros_like_has_same_dtype_and_shape(self):
         for datatype in [dtypes.float16, dtypes.float32, dtypes.int8, dtypes.int32, dtypes.int64, dtypes.uint8]:
             a = Tensor([1, 2, 3], dtype=datatype)
@@ -173,7 +171,6 @@ class TestTinygrad(unittest.TestCase):
         ), "a.dtype should be int and b.dtype should be char"
         assert a.shape == b.shape, f"shape mismatch {a.shape} != {b.shape}"
 
-    @pytest.mark.skip(reason="We cast lists of all dtypes up to floats when moving to Tensor")
     def test_ones_like_has_same_dtype_and_shape(self):
         for datatype in [dtypes.float16, dtypes.float32, dtypes.int8, dtypes.int32, dtypes.int64, dtypes.uint8]:
             a = Tensor([1, 2, 3], dtype=datatype)
@@ -254,8 +251,6 @@ class TestTinygrad(unittest.TestCase):
         )  # check if ndarray correctly casts to Tensor dtype
         assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64  # check that it works for something else
 
-    
-    @pytest.mark.skip(reason="We cast lists of all dtypes up to floats when moving to Tensor")
     def test_tensor_list_dtype(self):
         for arr in ([1], [[[1]]], [[1, 1], [1, 1]], [[[1, 1], [1, 1]], [[1, 1], [1, 1]]]):
             x = Tensor(arr)
@@ -320,7 +315,6 @@ class TestTinygrad(unittest.TestCase):
         x = copy.deepcopy(Tensor.ones((3, 3, 3)))
         np.testing.assert_allclose(x.numpy(), np.ones((3, 3, 3)))
 
-    @pytest.mark.skip(reason="We cast lists of all dtypes up to floats when moving to Tensor")
     def test_item_to_tensor_to_item(self):
         for a in [0, 1, 2, 3, -1, -100, 100, -101.1, 2.345, 100.1, True, False]:
             item = Tensor(a).item()
