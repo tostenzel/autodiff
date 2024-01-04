@@ -15,9 +15,9 @@ def fetch_mnist(for_convolution=True):
     BASE = os.path.dirname(__file__) + "/datasets"
     
     X_train = parse(BASE + "/mnist/train-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28 * 28)).astype(np.float32)
-    Y_train = parse(BASE + "/mnist/train-labels-idx1-ubyte.gz")[8:]
+    Y_train = parse(BASE + "/mnist/train-labels-idx1-ubyte.gz")[8:].astype(np.int32)
     X_test = parse(BASE + "/mnist/t10k-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28 * 28)).astype(np.float32)
-    Y_test = parse(BASE + "/mnist/t10k-labels-idx1-ubyte.gz")[8:]
+    Y_test = parse(BASE + "/mnist/t10k-labels-idx1-ubyte.gz")[8:].astype(np.int32)
     if for_convolution:
         X_train = X_train.reshape(-1, 1, 28, 28)
         X_test = X_test.reshape(-1, 1, 28, 28)

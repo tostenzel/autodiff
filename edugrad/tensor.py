@@ -86,7 +86,7 @@ class Tensor:
             data = TensorData(np.array(data, dtype=(dtype or Tensor.default_type).np))
     
         elif data is None:
-            data = TensorData.loadop(LoadOps.EMPTY, (0,), dtype or dtypes.default_float)
+            data = TensorData.loadop(LoadOps.EMPTY, (0,), dtype or dtypes.only_float)
         
         elif isinstance(data, bytes):
             data = TensorData(np.frombuffer(data, np.uint8))

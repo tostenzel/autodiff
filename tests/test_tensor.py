@@ -169,7 +169,7 @@ class TestTinygrad(unittest.TestCase):
         a = Tensor([1, 2, 3])
         b = Tensor.zeros_like(a, dtype=dtypes.int8)
         assert (
-            a.dtype == dtypes.default_int and b.dtype == dtypes.int8
+            a.dtype == dtypes.only_int and b.dtype == dtypes.int8
         ), "a.dtype should be int and b.dtype should be char"
         assert a.shape == b.shape, f"shape mismatch {a.shape} != {b.shape}"
 
@@ -184,7 +184,7 @@ class TestTinygrad(unittest.TestCase):
         a = Tensor([1, 2, 3])
         b = Tensor.ones_like(a, dtype=dtypes.int8)
         assert (
-            a.dtype == dtypes.default_int and b.dtype == dtypes.int8
+            a.dtype == dtypes.only_int and b.dtype == dtypes.int8
         ), "a.dtype should be int and b.dtype should be char"
         assert a.shape == b.shape, f"shape mismatch {a.shape} != {b.shape}"
 
@@ -260,7 +260,7 @@ class TestTinygrad(unittest.TestCase):
         for arr in ([1], [[[1]]], [[1, 1], [1, 1]], [[[1, 1], [1, 1]], [[1, 1], [1, 1]]]):
             x = Tensor(arr)
             have = x.dtype
-            assert Tensor(arr).dtype == dtypes.default_int
+            assert Tensor(arr).dtype == dtypes.only_int
             assert Tensor(arr, dtype=dtypes.float32).dtype == dtypes.float32
             assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64
 
@@ -277,13 +277,13 @@ class TestTinygrad(unittest.TestCase):
         # empty tensor defaults
         for arr in ([], [[[]]], [[], []]):
             t = Tensor(arr)
-            assert t.dtype == dtypes.default_float
+            assert t.dtype == dtypes.only_float
             np.testing.assert_allclose(t.numpy(), np.array(arr))
 
         # mixture of bool and int
         for arr in ([True, 3], [[True], [3]], [[[True]], [[3]]], [[True, 3], [3, True]]):
             t = Tensor(arr)
-            assert t.dtype == dtypes.default_int
+            assert t.dtype == dtypes.only_int
             np.testing.assert_allclose(t.numpy(), np.array(arr))
 
         # mixture of bool, int and float
@@ -294,7 +294,7 @@ class TestTinygrad(unittest.TestCase):
             [[[True], [1]], [[3.0], [4]]],
         ):
             t = Tensor(arr)
-            assert t.dtype == dtypes.default_float
+            assert t.dtype == dtypes.only_float
             np.testing.assert_allclose(t.numpy(), np.array(arr))
     
 
