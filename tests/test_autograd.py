@@ -12,9 +12,9 @@ W_init = np.random.randn(3, 3).astype(np.float32)
 m_init = np.random.randn(1, 3).astype(np.float32)
 
 
-class TestTinygrad(unittest.TestCase):
+class TestEdugrad(unittest.TestCase):
     def test_backward_pass(self):
-        def test_tinygrad():
+        def test_edugrad():
             x = Tensor(x_init, requires_grad=True)
             W = Tensor(W_init, requires_grad=True)
             m = Tensor(m_init)
@@ -34,11 +34,11 @@ class TestTinygrad(unittest.TestCase):
             out.backward()
             return out.detach().numpy(), x.grad, W.grad
 
-        for x, y in zip(test_tinygrad(), test_pytorch()):
+        for x, y in zip(test_edugrad(), test_pytorch()):
             np.testing.assert_allclose(x, y, atol=1e-5)
 
     def test_backward_pass_diamond_model(self):
-        def test_tinygrad():
+        def test_edugrad():
             u = Tensor(U_init, requires_grad=True)
             v = Tensor(V_init, requires_grad=True)
             w = Tensor(W_init, requires_grad=True)
@@ -62,7 +62,7 @@ class TestTinygrad(unittest.TestCase):
             out.backward()
             return out.detach().numpy(), u.grad, v.grad, w.grad
 
-        for x, y in zip(test_tinygrad(), test_pytorch()):
+        for x, y in zip(test_edugrad(), test_pytorch()):
             np.testing.assert_allclose(x, y, atol=1e-5)
 
     def test_nograd(self):
@@ -92,14 +92,14 @@ class TestTinygrad(unittest.TestCase):
 
         PJ = torch.autograd.functional.jacobian(torch_func, torch_x).squeeze().numpy()
 
-        tiny_x = Tensor(x, requires_grad=True)
-        tiny_W = Tensor(W, requires_grad=True)
+        edugrad_x = Tensor(x, requires_grad=True)
+        edugrad_W = Tensor(W, requires_grad=True)
 
-        def tiny_func(x):
-            return x.dot(tiny_W).relu().log_softmax()
+        def func(x):
+            return x.dot(edugrad_W).relu().log_softmax()
 
-        J = jacobian(tiny_func, tiny_x)
-        NJ = numerical_jacobian(tiny_func, tiny_x)
+        J = jacobian(func, edugrad_x)
+        NJ = numerical_jacobian(func, edugrad_x)
 
         np.testing.assert_allclose(PJ, J, atol=1e-5)
         np.testing.assert_allclose(PJ, NJ, atol=1e-3)
@@ -108,16 +108,16 @@ class TestTinygrad(unittest.TestCase):
         W = np.random.RandomState(1337).random((10, 5)).astype(np.float32)
         x = np.random.RandomState(7331).random((1, 10)).astype(np.float32)
 
-        tiny_x = Tensor(x, requires_grad=True)
-        tiny_W = Tensor(W, requires_grad=True)
+        edugrad_x = Tensor(x, requires_grad=True)
+        edugrad_W = Tensor(W, requires_grad=True)
 
-        def tiny_func(x):
-            return x.dot(tiny_W).relu().log_softmax()
+        def func(x):
+            return x.dot(edugrad_W).relu().log_softmax()
 
-        self.assertTrue(gradcheck(tiny_func, tiny_x, eps=1e-3))
+        self.assertTrue(gradcheck(func, edugrad_x, eps=1e-3))
 
         # coarse approx. since a "big" eps and the non-linearities of the model
-        self.assertFalse(gradcheck(tiny_func, tiny_x, eps=1e-5))
+        self.assertFalse(gradcheck(func, edugrad_x, eps=1e-5))
 
 
     def test_deepwalk_ctx_check(self):

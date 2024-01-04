@@ -19,7 +19,7 @@ def jacobian(func, input):
         input.grad = None
         output = func(input)
 
-        # tinygrad doesn't support slicing, tiny-hack to select
+        # edugrad doesn't support slicing, tiny-hack to select
         # the needed scalar an backpropagate only through it
         o_scalar = Tensor(mask_like(output.numpy(), o, 1.0)).mul(output).sum()
         o_scalar.backward()

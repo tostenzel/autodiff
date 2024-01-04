@@ -2,7 +2,7 @@ import unittest
 from edugrad import Tensor
 
 
-class TestTinygrad(unittest.TestCase):
+class TestEdugrad(unittest.TestCase):
 
     def test_argfix(self):
         self.assertEqual(Tensor.zeros().shape, ())

@@ -24,7 +24,7 @@ def fetch_mnist(for_convolution=True):
     return X_train, Y_train, X_test, Y_test
 
 
-class TinyConvNet:
+class ConvNet:
     def __init__(self):
         # https://keras.io/examples/vision/mnist_convnet/
         kernel_sz = 3
@@ -42,7 +42,7 @@ class TinyConvNet:
 
 def train_and_evaluate_mnist(num_steps=100, batch_size=128, learning_rate=0.001):
     X_train, Y_train, X_test, Y_test = fetch_mnist()
-    model = TinyConvNet()
+    model = ConvNet()
     opt = optimizer.Adam([model.c1, model.c2, model.l1], lr=learning_rate)
 
     with Tensor.train():

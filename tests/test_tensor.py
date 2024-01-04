@@ -3,8 +3,8 @@ import unittest, copy
 from edugrad import Tensor
 from edugrad.dtypes import dtypes
 
-
-class TestTinygrad(unittest.TestCase):
+# Tensor(x) casts all types up to float32
+class TestEdugrad(unittest.TestCase):
 
     def test_ndim(self):
         assert Tensor(1).ndim == 0
@@ -32,19 +32,22 @@ class TestTinygrad(unittest.TestCase):
 
     def test_tensor_ndarray_dtype(self):
         arr = np.array([1])  # where dtype is implicitly int64
-        assert Tensor(arr).dtype == dtypes.int64
+        with self.assertRaises(KeyError):
+            # DTYPES_DICT[np.dtype(x).name] key not available because dtype.int64 not defined
+            assert Tensor(arr).dtype == dtypes.int64
         assert (
             Tensor(arr, dtype=dtypes.float32).dtype == dtypes.float32
         )  # check if ndarray correctly casts to Tensor dtype
-        assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64  # check that it works for something else
+        with self.assertRaises(AttributeError):
+            # dtype.float64 not defined
+            assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64  # check that it works for something else
 
     def test_tensor_list_dtype(self):
         for arr in ([1], [[[1]]], [[1, 1], [1, 1]], [[[1, 1], [1, 1]], [[1, 1], [1, 1]]]):
-            x = Tensor(arr)
-            have = x.dtype
-            assert Tensor(arr).dtype == dtypes.only_int
+            with self.assertRaises(AssertionError):
+                # we always cast up to float32, even only int int32.
+                assert Tensor(arr).dtype == dtypes.only_int
             assert Tensor(arr, dtype=dtypes.float32).dtype == dtypes.float32
-            assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64
 
         for arr in (
             [True],
@@ -52,9 +55,13 @@ class TestTinygrad(unittest.TestCase):
             [[True, False], [True, False]],
             [[[False, True], [False, False]], [[True, True], [False, True]]],
         ):
-            assert Tensor(arr).dtype == dtypes.bool
+            with self.assertRaises(AssertionError):
+                # we always cast up to float32, even bool.
+                assert Tensor(arr).dtype == dtypes.bool
             assert Tensor(arr, dtype=dtypes.float32).dtype == dtypes.float32
-            assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64
+            with self.assertRaises(AttributeError):
+                # dtype.float64 not defined
+               assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64
 
         # empty tensor defaults
         for arr in ([], [[[]]], [[], []]):
@@ -65,7 +72,9 @@ class TestTinygrad(unittest.TestCase):
         # mixture of bool and int
         for arr in ([True, 3], [[True], [3]], [[[True]], [[3]]], [[True, 3], [3, True]]):
             t = Tensor(arr)
-            assert t.dtype == dtypes.only_int
+            with self.assertRaises(AssertionError):
+                # we always cast up to float32,
+                assert t.dtype == dtypes.only_int
             np.testing.assert_allclose(t.numpy(), np.array(arr))
 
         # mixture of bool, int and float
@@ -104,15 +113,25 @@ class TestTinygrad(unittest.TestCase):
 
     def test_item_to_tensor_to_item(self):
         for a in [0, 1, 2, 3, -1, -100, 100, -101.1, 2.345, 100.1, True, False]:
-            item = Tensor(a).item()
-            assert type(item) == type(a), a
-            np.testing.assert_allclose(item, a), a
-            buffered_item = Tensor([a]).item()
-            assert type(buffered_item) == type(a), a
-            np.testing.assert_allclose(buffered_item, a), a
-            reshaped_item = Tensor([a]).reshape((1, 1, 1, 1, 1)).item()
-            assert type(reshaped_item) == type(a), a
-            np.testing.assert_allclose(reshaped_item, a), a
+            tensor_item = Tensor(a).item()
+            buffered_tensor_item = Tensor([a]).item()
+            reshaped_tensor_item = Tensor([a]).reshape((1, 1, 1, 1, 1)).item()
+            np.testing.assert_allclose(tensor_item, a)
+            np.testing.assert_allclose(buffered_tensor_item, a)
+            np.testing.assert_allclose(reshaped_tensor_item, a)
+            self.assertEqual(type(tensor_item), type(a))
+
+            # For non-floats, assert that type check raises AssertionError if Tensor created from list
+            if isinstance(a, float):
+                # For floats, type should be retained
+                self.assertEqual(type(tensor_item), float)
+                self.assertEqual(type(buffered_tensor_item), float)
+                self.assertEqual(type(reshaped_tensor_item), float)
+            else:
+                with self.assertRaises(AssertionError):
+                    self.assertEqual(type(buffered_tensor_item), type(a))
+                with self.assertRaises(AssertionError):
+                    self.assertEqual(type(reshaped_tensor_item), type(a))
 
 class TestZeroShapeTensor(unittest.TestCase):
 

@@ -74,7 +74,7 @@ class Tensor:
 
         # --------------------------------------------------------------------------------------------------------------
         # Handles Tensor(x) for x with different data types.
-        # We cast x = list(y) up to float32 (default_type) for every type that y can have
+        # We cast x = list(y) up to float32 (default_type) for every type that y can have if no other type is provided
 
         if isinstance(data, TensorData):
             assert dtype is None or dtype == data.dtype, "dtype doesn't match, and casting isn't supported"

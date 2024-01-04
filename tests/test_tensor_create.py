@@ -4,7 +4,7 @@ from edugrad import Tensor
 from edugrad.dtypes import dtypes
 
 
-class TestTinygrad(unittest.TestCase):
+class TestEdugrad(unittest.TestCase):
     def test_zerodim_initialization(self):
         a = Tensor(55)
         b = Tensor(3.14)
@@ -41,32 +41,19 @@ class TestTinygrad(unittest.TestCase):
             Tensor.rand = original_rand
 
     def test_zeros_like_has_same_dtype_and_shape(self):
-        for datatype in [dtypes.float16, dtypes.float32, dtypes.int8, dtypes.int32, dtypes.int64, dtypes.uint8]:
+        for datatype in [dtypes.float32, dtypes.int32]:
             a = Tensor([1, 2, 3], dtype=datatype)
             b = Tensor.zeros_like(a)
             assert a.dtype == b.dtype, f"dtype mismatch {a.dtype=} != {b.dtype}"
             assert a.shape == b.shape, f"shape mismatch {a.shape} != {b.shape}"
 
-        a = Tensor([1, 2, 3])
-        b = Tensor.zeros_like(a, dtype=dtypes.int8)
-        assert (
-            a.dtype == dtypes.only_int and b.dtype == dtypes.int8
-        ), "a.dtype should be int and b.dtype should be char"
-        assert a.shape == b.shape, f"shape mismatch {a.shape} != {b.shape}"
 
     def test_ones_like_has_same_dtype_and_shape(self):
-        for datatype in [dtypes.float16, dtypes.float32, dtypes.int8, dtypes.int32, dtypes.int64, dtypes.uint8]:
+        for datatype in [dtypes.float32, dtypes.int32]:
             a = Tensor([1, 2, 3], dtype=datatype)
             b = Tensor.ones_like(a)
             assert a.dtype == b.dtype, f"dtype mismatch {a.dtype=} != {b.dtype}"
             assert a.shape == b.shape, f"shape mismatch {a.shape} != {b.shape}"
-
-        a = Tensor([1, 2, 3])
-        b = Tensor.ones_like(a, dtype=dtypes.int8)
-        assert (
-            a.dtype == dtypes.only_int and b.dtype == dtypes.int8
-        ), "a.dtype should be int and b.dtype should be char"
-        assert a.shape == b.shape, f"shape mismatch {a.shape} != {b.shape}"
 
 
 class TestZeroShapeTensor(unittest.TestCase):
