@@ -1,4 +1,4 @@
-from typing import Sequence, Optional, Tuple
+from typing import Sequence, Optional, Tuple, Union
 from collections import defaultdict
 
 from edugrad.dtypes import dtypes
@@ -36,6 +36,15 @@ from edugrad._tensor.tensor_reshape import pad, _flatten
 def __getitem__(
     tensor: "Tensor", val
 ) -> "Tensor":  # val: Union[int, slice, Tensor, None, Ellipsis, Tuple[Union[int, slice, Tensor, None, Ellipsis], ...]]
+    """Retrieves an element or a slice from the tensor based on the specified value.
+
+    Args:
+    - tensor (Tensor): The tensor from which to retrieve the element or slice.
+    - val: The index or slice object. Can be an integer, slice, Tensor, None, Ellipsis, or a combination thereof in a tuple.
+
+    Returns:
+    - Tensor: A tensor containing the retrieved element or slice.
+    """
     from edugrad.tensor import Tensor
 
     def normalize_int(e, i, dim_sz):
@@ -138,11 +147,26 @@ def __getitem__(
 
 
 def __setitem__(tensor: "Tensor", s, v):
+    """Assigns a value to a specified element or slice of the tensor.
+
+    Args:
+    - tensor (Tensor): The tensor to modify.
+    - s: The index or slice where the value will be assigned.
+    - v: The value to be assigned.
+
+    """
     return tensor.__getitem__(s).assign(v)
 
 
 # NOTE: using slice is discouraged and things should migrate to pad and shrink
 def tslice(tensor: "Tensor", arg: Sequence[Optional[Tuple[int, shape_int]]], value: float = 0) -> "Tensor":
+    """Applies slicing to a tensor, using padding and shrinking for manipulation.
+
+    Args:
+    - tensor (Tensor): The tensor to slice.
+    - arg (Sequence[Optional[Tuple[int, shape_int]]]): A sequence of tuples defining the slicing parameters.
+    - value (float): The padding value to be used if necessary.
+    """
     from edugrad.tensor import Tensor
 
     arg_ = tuple([a if a is not None else (0, s) for s, a in zip(tensor.shape, arg)])
@@ -154,7 +178,14 @@ def tslice(tensor: "Tensor", arg: Sequence[Optional[Tuple[int, shape_int]]], val
 
 
 def gather(tensor: "Tensor", idx: "Tensor", dim: int) -> "Tensor":
-    from edugrad._tensor import Tensor
+    """Gathers elements from the tensor along a specified dimension, according to indices specified in another tensor.
+
+    Args:
+    - tensor (Tensor): The tensor from which to gather elements.
+    - idx (Tensor): The tensor containing indices to gather.
+    - dim (int): The dimension along which to gather.
+    """
+    from edugrad.tensor import Tensor
 
     assert idx.ndim == tensor.ndim, "tensor.ndim must equal idx.ndim"
     assert all(
