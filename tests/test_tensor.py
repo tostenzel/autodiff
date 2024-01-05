@@ -3,9 +3,9 @@ import unittest, copy
 from edugrad import Tensor
 from edugrad.dtypes import dtypes
 
+
 # Tensor(x) casts all types up to float32
 class TestEdugrad(unittest.TestCase):
-
     def test_ndim(self):
         assert Tensor(1).ndim == 0
         assert Tensor.randn(1).ndim == 1
@@ -24,7 +24,6 @@ class TestEdugrad(unittest.TestCase):
             assert (
                 dtype.itemsize == Tensor.randn(3, dtype=dtype).element_size()
             ), f"Tensor.element_size() not matching Tensor.dtype.itemsize for {dtype}"
-
 
     def test_zerosized_tensors(self):
         np.testing.assert_equal(Tensor([]).numpy(), np.array([]))
@@ -61,7 +60,7 @@ class TestEdugrad(unittest.TestCase):
             assert Tensor(arr, dtype=dtypes.float32).dtype == dtypes.float32
             with self.assertRaises(AttributeError):
                 # dtype.float64 not defined
-               assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64
+                assert Tensor(arr, dtype=dtypes.float64).dtype == dtypes.float64
 
         # empty tensor defaults
         for arr in ([], [[[]]], [[], []]):
@@ -87,7 +86,6 @@ class TestEdugrad(unittest.TestCase):
             t = Tensor(arr)
             assert t.dtype == dtypes.only_float
             np.testing.assert_allclose(t.numpy(), np.array(arr))
-    
 
     def test_tensor_list_shapes(self):
         self.assertEqual(Tensor([[[]]]).shape, (1, 1, 0))
@@ -133,8 +131,8 @@ class TestEdugrad(unittest.TestCase):
                 with self.assertRaises(AssertionError):
                     self.assertEqual(type(reshaped_tensor_item), type(a))
 
-class TestZeroShapeTensor(unittest.TestCase):
 
+class TestZeroShapeTensor(unittest.TestCase):
     def test_elementwise(self):
         a = Tensor.rand(3, 2, 0)
         a_exp = a.exp()

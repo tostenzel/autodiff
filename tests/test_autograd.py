@@ -119,7 +119,6 @@ class TestEdugrad(unittest.TestCase):
         # coarse approx. since a "big" eps and the non-linearities of the model
         self.assertFalse(gradcheck(func, edugrad_x, eps=1e-5))
 
-
     def test_deepwalk_ctx_check(self):
         layer = Tensor.uniform(1, 1, requires_grad=True)
         x = Tensor.randn(1, 1, 1)

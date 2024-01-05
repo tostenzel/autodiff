@@ -3,7 +3,6 @@ from edugrad import Tensor
 
 
 class TestEdugrad(unittest.TestCase):
-
     def test_argfix(self):
         self.assertEqual(Tensor.zeros().shape, ())
         self.assertEqual(Tensor.ones().shape, ())

@@ -1,3 +1,9 @@
+"""Train a classifier to recognize the hand-written digit on gray-scale images.
+
+and evaluate the results.
+
+"""
+
 import os
 import gzip
 
@@ -13,7 +19,7 @@ def fetch_mnist(for_convolution=True):
 
     # parse = lambda file: np.frombuffer(gzip.open(file).read(), dtype=np.uint8).copy()
     BASE = os.path.dirname(__file__) + "/datasets"
-    
+
     X_train = parse(BASE + "/mnist/train-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28 * 28)).astype(np.float32)
     Y_train = parse(BASE + "/mnist/train-labels-idx1-ubyte.gz")[8:].astype(np.int32)
     X_test = parse(BASE + "/mnist/t10k-images-idx3-ubyte.gz")[0x10:].reshape((-1, 28 * 28)).astype(np.float32)
@@ -49,7 +55,7 @@ def train_and_evaluate_mnist(num_steps=100, batch_size=128, learning_rate=0.001)
         for step in range(num_steps):
             samp = np.random.randint(0, X_train.shape[0], size=(batch_size))
             xb, yb = Tensor(X_train[samp], requires_grad=False), Tensor(Y_train[samp])
-            
+
             out = model(xb)
             loss = out.sparse_categorical_crossentropy(yb)
             opt.zero_grad()
@@ -70,7 +76,6 @@ def train_and_evaluate_mnist(num_steps=100, batch_size=128, learning_rate=0.001)
         test_accuracy += (preds == yb).sum().numpy()
     test_accuracy /= len(Y_test)
     return test_accuracy
-
 
 
 if __name__ == "__main__":

@@ -47,7 +47,6 @@ class TestEdugrad(unittest.TestCase):
             assert a.dtype == b.dtype, f"dtype mismatch {a.dtype=} != {b.dtype}"
             assert a.shape == b.shape, f"shape mismatch {a.shape} != {b.shape}"
 
-
     def test_ones_like_has_same_dtype_and_shape(self):
         for datatype in [dtypes.float32, dtypes.int32]:
             a = Tensor([1, 2, 3], dtype=datatype)

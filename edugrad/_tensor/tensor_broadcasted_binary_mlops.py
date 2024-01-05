@@ -1,3 +1,5 @@
+"""This module implements broadcasted binary operations for Tensors, providing element-wise arithmetic operations that
+support broadcasting for tensors of different shapes."""
 from __future__ import annotations
 
 import math
@@ -10,27 +12,52 @@ import edugrad.function as function
 
 
 def _broadcasted(tensor: Tensor, y: Tensor | float, reverse: bool = False) -> tuple[Tensor, Tensor]:
+    """Prepares two tensors for broadcasting to a common shape.
+
+    Args:
+        tensor (Tensor): The first tensor.
+        y (Tensor | float): The second tensor or a scalar value.
+        reverse (bool): If True, swaps the tensors before broadcasting.
+
+    Returns:
+        tuple[Tensor, Tensor]: A tuple of two tensors broadcasted to a common shape.
+
+    """
     from edugrad.tensor import Tensor
 
     x: Tensor = tensor
+    # If y is not a tensor, convert it to a tensor with the same dtype as the input tensor.
+    # If the input tensor is empty, return a tensor full of the scalar value y.
     if not isinstance(y, Tensor):
         if 0 in x.shape:
             return x, x.full_like(y)
         y = Tensor(y, requires_grad=False, dtype=tensor.dtype if tensor.dtype != dtypes.bool else dtypes.float32)
+
+    # Swap tensors if reverse is True.
     if reverse:
         x, y = y, x
+
+    # Directly return tensors if they are already the same shape.
     if (xshape := x.shape) == (yshape := y.shape):
         return (x, y)
 
+    # Adjust shapes to make them broadcastable. This is done by prepending 1's to the shape
+    # of the shorter tensor until both shapes have the same length.
     shape_delta = len(xshape) - len(yshape)
     if shape_delta > 0:
         y = y.reshape((1,) * shape_delta + yshape)
     elif shape_delta < 0:
         x = x.reshape((1,) * -shape_delta + xshape)
+
+    # Check if tensors are now the same shape. If yes, return them.
     if (xshape := x.shape) == (yshape := y.shape):
         return (x, y)
 
+    # Determine the final shape after broadcasting. This is the element-wise maximum
+    # of the shapes of the two tensors.
     shape_ret = tuple([max(x, y) for x, y in zip(xshape, yshape)])
+
+    # Expand tensors to the final broadcasted shape.
     if xshape != shape_ret:
         x = x.expand(shape_ret)
     if yshape != shape_ret:
@@ -39,6 +66,17 @@ def _broadcasted(tensor: Tensor, y: Tensor | float, reverse: bool = False) -> tu
 
 
 def _to_float(tensor: Tensor, x: Tensor | float):
+    """Converts a tensor to float32 dtype if it is not already a Tensor and if it is suitable for certain operations
+    where float32 dtype is required.
+
+    Args:
+        tensor (Tensor): The reference tensor to check compatibility.
+        x (Tensor | float): The tensor or scalar to be converted.
+
+    Returns:
+        The converted tensor or the original scalar.
+
+    """
     from edugrad.tensor import Tensor
 
     return (
@@ -52,6 +90,7 @@ def _to_float(tensor: Tensor, x: Tensor | float):
 
 
 def add(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
+    """Adds two tensors or a tensor and a scalar."""
     from edugrad.tensor import Tensor
 
     x = tensor._to_float(x)
@@ -59,6 +98,7 @@ def add(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
 
 
 def sub(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
+    """Subtracts two tensors or a tensor and a scalar."""
     from edugrad.tensor import Tensor
 
     x = tensor._to_float(x)
@@ -70,6 +110,7 @@ def sub(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
 
 
 def mul(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
+    """Multiplies two tensors or a tensor and a scalar."""
     from edugrad.tensor import Tensor
 
     x = tensor._to_float(x)
@@ -81,6 +122,7 @@ def mul(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
 
 
 def div(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
+    """Divides two tensors or a tensor and a scalar."""
     from edugrad.tensor import Tensor
 
     x = tensor._to_float(x)
@@ -92,6 +134,7 @@ def div(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
 
 
 def pow(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
+    """Raises a tensor to the power of another tensor or a scalar."""
     from edugrad.tensor import Tensor
 
     x = tensor._to_float(x)
@@ -140,18 +183,22 @@ def pow(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
 
 
 def matmul(tensor: Tensor, x: Tensor, reverse=False) -> Tensor:
+    """Performs matrix multiplication."""
     return x.dot(tensor) if reverse else tensor.dot(x)
 
 
 def maximum(tensor: Tensor, x: Tensor | float) -> Tensor:
+    """Computes the element-wise maximum of two tensors."""
     return (tensor < x).detach().where(x, (tensor > x).detach().where(tensor, (tensor + x) / 2))
 
 
 def minimum(tensor: Tensor, x: Tensor | float) -> Tensor:
+    """Computes the element-wise minimum of two tensors."""
     return -((-tensor).maximum(-x))
 
 
 def where(tensor: Tensor, input_: Tensor | float, other: Tensor | float):
+    """Selects elements from two tensors based on a condition tensor."""
     x_, y = tensor._broadcasted(input_)
     x, z = x_._broadcasted(other)
     return function.Where.apply(x, *y._broadcasted(z))

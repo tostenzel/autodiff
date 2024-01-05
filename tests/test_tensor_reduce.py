@@ -5,7 +5,6 @@ from edugrad.dtypes import dtypes
 
 
 class TestZeroShapeTensor(unittest.TestCase):
-
     def test_reduce_over_non_zero(self):
         a = Tensor.ones(3, 2, 0).sum(axis=1)
         assert a.shape == (3, 0)
