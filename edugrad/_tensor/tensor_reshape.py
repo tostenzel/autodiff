@@ -7,7 +7,7 @@ from edugrad.helpers import argfix, prod, shape_int
 import edugrad.function as function
 
 
-def reshape(tensor: Tensor, shape: Union[int, Tuple[int, ...]], *args) -> Tensor:
+def reshape(tensor: Tensor, shape: int | tuple[int, ...], *args) -> Tensor:
     """Reshapes a tensor to the specified new shape.
 
     Args:
@@ -25,8 +25,9 @@ def reshape(tensor: Tensor, shape: Union[int, Tuple[int, ...]], *args) -> Tensor
     return function.Reshape.apply(tensor, shape=adjusted_shape)
 
 
-def expand(tensor: Tensor, shape: Union[int, Tuple[int, ...]], *args) -> Tensor:
-    """Expands the size of the tensor to the specified shape. -1 in the shape means the corresponding dimension is unchanged.
+def expand(tensor: Tensor, shape: int | tuple[int, ...], *args) -> Tensor:
+    """Expands the size of the tensor to the specified shape. -1 in the shape means the corresponding dimension is
+    unchanged.
 
     Args:
         tensor: The tensor to expand.
@@ -40,9 +41,8 @@ def expand(tensor: Tensor, shape: Union[int, Tuple[int, ...]], *args) -> Tensor:
     return function.Expand.apply(tensor, shape=expanded_shape)
 
 
-def permute(tensor: Tensor, order: Union[int, Tuple[int, ...]], *args) -> Tensor:
-    """
-    Permutes the tensor dimensions according to the specified order.
+def permute(tensor: Tensor, order: int | tuple[int, ...], *args) -> Tensor:
+    """Permutes the tensor dimensions according to the specified order.
 
     Args:
         tensor: The tensor to permute.
@@ -54,9 +54,8 @@ def permute(tensor: Tensor, order: Union[int, Tuple[int, ...]], *args) -> Tensor
     return function.Permute.apply(tensor, order=new_order)
 
 
-def flip(tensor: Tensor, axis: Union[int, List[int]], *args) -> Tensor:
-    """
-    Flips the tensor along the specified axes.
+def flip(tensor: Tensor, axis: int | list[int], *args) -> Tensor:
+    """Flips the tensor along the specified axes.
 
     Args:
         tensor: The tensor to flip.
@@ -69,9 +68,8 @@ def flip(tensor: Tensor, axis: Union[int, List[int]], *args) -> Tensor:
     return function.Flip.apply(tensor, axis=normalized_axes)
 
 
-def shrink(tensor: Tensor, arg: Tuple[Tuple[shape_int, shape_int] | None, ...]) -> Tensor:
-    """
-    Shrinks the tensor along each dimension according to the specified start and end indices.
+def shrink(tensor: Tensor, arg: tuple[tuple[shape_int, shape_int] | None, ...]) -> Tensor:
+    """Shrinks the tensor along each dimension according to the specified start and end indices.
 
     Args:
         tensor: The tensor to shrink.
@@ -86,9 +84,8 @@ def shrink(tensor: Tensor, arg: Tuple[Tuple[shape_int, shape_int] | None, ...]) 
     return tensor
 
 
-def pad(tensor: Tensor, arg: Tuple[Tuple[int, int] | None, ...], value: float) -> Tensor:
-    """
-    Pads the tensor along each dimension with the specified padding values.
+def pad(tensor: Tensor, arg: tuple[tuple[int, int] | None, ...], value: float) -> Tensor:
+    """Pads the tensor along each dimension with the specified padding values.
 
     Args:
         tensor: The tensor to pad.
@@ -97,6 +94,7 @@ def pad(tensor: Tensor, arg: Tuple[Tuple[int, int] | None, ...], value: float) -
 
     """
     from edugrad.tensor import Tensor
+
     # Determine padding for each dimension, defaulting to (0, 0)
     pad_arg = tuple(x if x is not None else (0, 0) for x in arg)
     # Apply padding operation if necessary
@@ -107,9 +105,8 @@ def pad(tensor: Tensor, arg: Tuple[Tuple[int, int] | None, ...], value: float) -
     return ret if value == 0 else ret + function.Pad.apply(Tensor.ones_like(tensor), arg=pad_arg).where(0, value)
 
 
-def pad2d(tensor: Tensor, padding: Union[List[int], Tuple[int, ...]], value: float) -> Tensor:
-    """
-    Pads the tensor with 2D padding specified for each side.
+def pad2d(tensor: Tensor, padding: list[int] | tuple[int, ...], value: float) -> Tensor:
+    """Pads the tensor with 2D padding specified for each side.
 
     Args:
         tensor: The tensor to pad.
@@ -123,8 +120,7 @@ def pad2d(tensor: Tensor, padding: Union[List[int], Tuple[int, ...]], value: flo
 
 
 def transpose(tensor: Tensor, ax1: int, ax2: int) -> Tensor:
-    """
-    Transposes two dimensions of the tensor.
+    """Transposes two dimensions of the tensor.
 
     Args:
         tensor: The tensor to transpose.
@@ -138,8 +134,7 @@ def transpose(tensor: Tensor, ax1: int, ax2: int) -> Tensor:
 
 
 def _flatten(tensor: Tensor, start_dim: int) -> Tensor:
-    """
-    Flattens the tensor from the specified start dimension.
+    """Flattens the tensor from the specified start dimension.
 
     Args:
         tensor: The tensor to flatten.
@@ -150,8 +145,7 @@ def _flatten(tensor: Tensor, start_dim: int) -> Tensor:
 
 
 def squeeze(tensor: Tensor, dim: Optional[int]) -> Tensor:
-    """
-    Squeezes the tensor by removing dimensions of size 1.
+    """Squeezes the tensor by removing dimensions of size 1.
 
     Args:
         tensor: The tensor to squeeze.
@@ -168,12 +162,15 @@ def squeeze(tensor: Tensor, dim: Optional[int]) -> Tensor:
         )
     if dim < 0:
         dim += tensor.ndim
-    return tensor if tensor.shape[dim] != 1 else tensor.reshape(*[size for idx, size in enumerate(tensor.shape) if idx != dim])
+    return (
+        tensor
+        if tensor.shape[dim] != 1
+        else tensor.reshape(*[size for idx, size in enumerate(tensor.shape) if idx != dim])
+    )
 
 
 def unsqueeze(tensor: Tensor, dim: int) -> Tensor:
-    """
-    Adds a dimension of size 1 to the tensor at the specified position.
+    """Adds a dimension of size 1 to the tensor at the specified position.
 
     Args:
         tensor: The tensor to unsqueeze.

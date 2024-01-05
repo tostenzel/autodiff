@@ -1,7 +1,8 @@
 """Contains low-level operation entry points and helper functions for tensor creation and manipulation.
 
-It includes functions for creating tensors with specific properties (like being empty, 
-random, or having specific values) and for random number generation.
+It includes functions for creating tensors with specific properties (like being empty, random, or having specific
+values) and for random number generation.
+
 """
 
 from __future__ import annotations
@@ -19,9 +20,9 @@ from edugrad.ops import LoadOps
 # creation low-level op entrypoint *****
 
 
-def _loadop(op: LoadOps, sz: int, dtype: Optional[DType] = None, arg: Any = None, **kwargs) -> Tensor:
+def _loadop(op: LoadOps, sz: int, dtype: DType | None = None, arg: Any = None, **kwargs) -> Tensor:
     """Internal helper function to create a Tensor with a specified operation.
-    
+
     Args:
     - op: Operation to be performed for tensor creation.
     - sz: Size of the tensor to be created.
@@ -31,6 +32,7 @@ def _loadop(op: LoadOps, sz: int, dtype: Optional[DType] = None, arg: Any = None
 
     Returns:
     - Tensor: A new tensor created with the specified operation.
+
     """
     from edugrad.tensor import Tensor
 
@@ -110,6 +112,7 @@ def arange(start: int | float, stop: int | float | None, step: int | float, **kw
 
     Returns:
     - Tensor: A 1D tensor containing a sequence of numbers.
+
     """
     from edugrad.tensor import Tensor
 
@@ -193,6 +196,7 @@ def scaled_uniform(*shape, **kwargs) -> Tensor:
     """Creates a scaled tensor with elements uniformly distributed over the interval [-1.0, 1.0)
 
     It is scaled by the inverse square root of the product of the tensor's shape.
+
     """
     from edugrad.tensor import Tensor
 

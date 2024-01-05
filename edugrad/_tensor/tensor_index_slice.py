@@ -44,6 +44,7 @@ def __getitem__(
 
     Returns:
     - Tensor: A tensor containing the retrieved element or slice.
+
     """
     from edugrad.tensor import Tensor
 
@@ -166,6 +167,7 @@ def tslice(tensor: "Tensor", arg: Sequence[Optional[Tuple[int, shape_int]]], val
     - tensor (Tensor): The tensor to slice.
     - arg (Sequence[Optional[Tuple[int, shape_int]]]): A sequence of tuples defining the slicing parameters.
     - value (float): The padding value to be used if necessary.
+
     """
     from edugrad.tensor import Tensor
 
@@ -184,6 +186,7 @@ def gather(tensor: "Tensor", idx: "Tensor", dim: int) -> "Tensor":
     - tensor (Tensor): The tensor from which to gather elements.
     - idx (Tensor): The tensor containing indices to gather.
     - dim (int): The dimension along which to gather.
+
     """
     from edugrad.tensor import Tensor
 

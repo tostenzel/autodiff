@@ -70,7 +70,7 @@ def _broadcasted(tensor: Tensor, y: Tensor | float, reverse: bool = False) -> tu
 
 def _to_float(tensor: Tensor, x: Tensor | float):
     """Converts a tensor to float32 dtype.
-    
+
     Args:
         tensor (Tensor): The reference tensor to check compatibility.
         x (Tensor | float): The tensor or scalar to be converted.
