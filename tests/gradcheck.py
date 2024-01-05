@@ -4,8 +4,8 @@ import numpy as np
 from edugrad.tensor import Tensor
 from typing import Callable, List, Union
 
-def mask_like(like: np.ndarray, mask_inx: Union[int, List[int]], mask_value: float = 1.0) -> np.ndarray:
 
+def mask_like(like: np.ndarray, mask_inx: Union[int, List[int]], mask_value: float = 1.0) -> np.ndarray:
     """Creates a mask array that is like the input array but with specified values masked.
 
     Args:
@@ -15,10 +15,12 @@ def mask_like(like: np.ndarray, mask_inx: Union[int, List[int]], mask_value: flo
 
     Returns:
         array: Masked array with the same shape as `like`.
+
     """
     mask = np.zeros_like(like).reshape(-1)
     mask[mask_inx] = mask_value
     return mask.reshape(like.shape)
+
 
 def jacobian(func: Callable, input: Tensor):
     """Computes the Jacobian matrix for a function at a given input.
@@ -29,6 +31,7 @@ def jacobian(func: Callable, input: Tensor):
 
     Returns:
         array: Jacobian matrix evaluated at the given input.
+
     """
     output = func(input)
     ji = input.numpy().reshape(-1).shape[-1]
@@ -48,7 +51,8 @@ def jacobian(func: Callable, input: Tensor):
             J[o, i] = grad
     return J
 
-def numerical_jacobian(func: Callable, input: Tensor, eps:float=1e-3):
+
+def numerical_jacobian(func: Callable, input: Tensor, eps: float = 1e-3):
     """Computes an approximation of the Jacobian matrix using finite differences.
 
     Args:
@@ -58,6 +62,7 @@ def numerical_jacobian(func: Callable, input: Tensor, eps:float=1e-3):
 
     Returns:
         array: Approximated Jacobian matrix.
+
     """
     output = func(input)
 
@@ -76,7 +81,8 @@ def numerical_jacobian(func: Callable, input: Tensor, eps:float=1e-3):
         NJ[:, i] = grad_approx
     return NJ
 
-def gradcheck(func: Callable, input: Tensor, eps: float=1e-3, atol: float=1e-3, rtol: float=1e-3):
+
+def gradcheck(func: Callable, input: Tensor, eps: float = 1e-3, atol: float = 1e-3, rtol: float = 1e-3):
     """Performs a gradient check by comparing the Jacobian to its numerical approximation.
 
     Args:
@@ -88,6 +94,7 @@ def gradcheck(func: Callable, input: Tensor, eps: float=1e-3, atol: float=1e-3, 
 
     Returns:
         bool: True if the computed Jacobian is close to its numerical approximation.
+
     """
     NJ = numerical_jacobian(func, input, eps)
     J = jacobian(func, input)

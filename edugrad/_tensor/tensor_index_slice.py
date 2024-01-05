@@ -144,6 +144,7 @@ def __setitem__(tensor: "Tensor", s, v):
 # NOTE: using slice is discouraged and things should migrate to pad and shrink
 def tslice(tensor: "Tensor", arg: Sequence[Optional[Tuple[int, shape_int]]], value: float = 0) -> "Tensor":
     from edugrad.tensor import Tensor
+
     arg_ = tuple([a if a is not None else (0, s) for s, a in zip(tensor.shape, arg)])
     padding = tuple([(max(0, -p[0]), max(0, p[1] - tensor.shape[i])) for i, p in enumerate(arg_)])
     return tensor.pad(padding, value=value).shrink(

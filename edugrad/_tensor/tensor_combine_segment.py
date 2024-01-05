@@ -7,6 +7,7 @@ from itertools import accumulate
 
 from edugrad.helpers import all_int
 
+
 def cat(tensor: Tensor, *args: Tensor, dim: int) -> Tensor:
     """Concatenates the given tensors along a specified dimension.
 
@@ -17,6 +18,7 @@ def cat(tensor: Tensor, *args: Tensor, dim: int) -> Tensor:
 
     Returns:
         Tensor: A new tensor resulting from concatenating the given tensors.
+
     """
     from edugrad.tensor import Tensor
 
@@ -57,6 +59,7 @@ def stack(tensors: list[Tensor], dim: int) -> Tensor:
 
     Returns:
         Tensor: A new tensor resulting from stacking the given tensors.
+
     """
     from edugrad.tensor import Tensor
 
@@ -77,6 +80,7 @@ def repeat(tensor: Tensor, repeats: list[int]) -> Tensor:
 
     Returns:
         Tensor: A new tensor with repeated values.
+
     """
     base_shape = (1,) * (len(repeats) - tensor.ndim) + tensor.shape
     new_shape = [x for b in base_shape for x in (1, b)]
@@ -97,6 +101,7 @@ def chunk(tensor: Tensor, num: int, dim: int) -> list[Tensor]:
 
     Returns:
         list[Tensor]: A list of tensors representing the chunks.
+
     """
     assert all_int(tensor.shape), f"does not support symbolic shape {tensor.shape}"
     dim, step = (dim + tensor.ndim if dim < 0 else dim), math.ceil(tensor.shape[dim] / num)

@@ -80,12 +80,12 @@ class TensorData:
     def elementwise(self, op, *srcs: "TensorData"):
         """Perform a unary, binary, or ternary elementwise operation on the data."""
         unary_ops = {
-                UnaryOps.NEG: lambda x: np.negative(x).astype(dtypes.only_float.np),
-                UnaryOps.EXP2: lambda x: np.exp2(x).astype(dtypes.only_float.np),
-                UnaryOps.LOG2: lambda x: np.log2(x).astype(dtypes.only_float.np),
-                UnaryOps.SIN: lambda x: np.sin(x).astype(dtypes.only_float.np),
-                UnaryOps.SQRT: lambda x: np.sqrt(x).astype(dtypes.only_float.np),
-            }
+            UnaryOps.NEG: lambda x: np.negative(x).astype(dtypes.only_float.np),
+            UnaryOps.EXP2: lambda x: np.exp2(x).astype(dtypes.only_float.np),
+            UnaryOps.LOG2: lambda x: np.log2(x).astype(dtypes.only_float.np),
+            UnaryOps.SIN: lambda x: np.sin(x).astype(dtypes.only_float.np),
+            UnaryOps.SQRT: lambda x: np.sqrt(x).astype(dtypes.only_float.np),
+        }
         binary_ops = {
             BinaryOps.ADD: lambda x, y: np.add(x, y).astype(dtypes.only_float.np),
             BinaryOps.SUB: lambda x, y: np.subtract(x, y).astype(dtypes.only_float.np),

@@ -1,8 +1,5 @@
-"""
-This module implements broadcasted binary operations for Tensors, providing
-element-wise arithmetic operations that support broadcasting for tensors of different shapes.
-
-"""
+"""This module implements broadcasted binary operations for Tensors, providing element-wise arithmetic operations that
+support broadcasting for tensors of different shapes."""
 from __future__ import annotations
 
 import math
@@ -16,14 +13,15 @@ import edugrad.function as function
 
 def _broadcasted(tensor: Tensor, y: Tensor | float, reverse: bool = False) -> tuple[Tensor, Tensor]:
     """Prepares two tensors for broadcasting to a common shape.
-    
+
     Args:
         tensor (Tensor): The first tensor.
         y (Tensor | float): The second tensor or a scalar value.
         reverse (bool): If True, swaps the tensors before broadcasting.
-    
+
     Returns:
         tuple[Tensor, Tensor]: A tuple of two tensors broadcasted to a common shape.
+
     """
     from edugrad.tensor import Tensor
 
@@ -68,9 +66,8 @@ def _broadcasted(tensor: Tensor, y: Tensor | float, reverse: bool = False) -> tu
 
 
 def _to_float(tensor: Tensor, x: Tensor | float):
-    """
-    Converts a tensor to float32 dtype if it is not already a Tensor and
-    if it is suitable for certain operations where float32 dtype is required.
+    """Converts a tensor to float32 dtype if it is not already a Tensor and if it is suitable for certain operations
+    where float32 dtype is required.
 
     Args:
         tensor (Tensor): The reference tensor to check compatibility.
@@ -78,6 +75,7 @@ def _to_float(tensor: Tensor, x: Tensor | float):
 
     Returns:
         The converted tensor or the original scalar.
+
     """
     from edugrad.tensor import Tensor
 

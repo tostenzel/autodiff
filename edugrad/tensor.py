@@ -60,7 +60,9 @@ class Tensor:
         dtype: DType | None = None,
         requires_grad: bool | None = None,
     ):
-        assert dtype is None or isinstance(dtype, DType), f"Invalid dtype {dtype}. edugrad only supports {list(DTYPES_DICT.keys())}"
+        assert dtype is None or isinstance(
+            dtype, DType
+        ), f"Invalid dtype {dtype}. edugrad only supports {list(DTYPES_DICT.keys())}"
 
         # tensors have gradients, buffers do not
         self.grad: Tensor | None = None
@@ -81,10 +83,10 @@ class Tensor:
 
         elif isinstance(data, (bool, int, float)):
             data = TensorData.loadop(LoadOps.CONST, tuple(), dtype or dtypes.from_py(data), data)
-    
+
         elif isinstance(data, list):
             data = TensorData(np.array(data, dtype=(dtype or Tensor.default_type).np))
-    
+
         elif data is None:
             data = TensorData.loadop(LoadOps.EMPTY, (0,), dtype or dtypes.only_float)
 
@@ -124,6 +126,7 @@ class Tensor:
         """Assigns the value of another tensor or array to the current tensor.
 
         This method is a workaround for writing to disk and is used for in-place modification of tensor data.
+
         """
         if not isinstance(x, Tensor):
             # Convert x to a Tensor if it's not already one
@@ -131,7 +134,7 @@ class Tensor:
 
         assert self.shape == x.shape, f"assign shape mismatch {self.shape} != {x.shape}"
         assert not x.requires_grad  # Ensure x doesn't require gradient computation
-        
+
         if DEBUG >= 4:
             print(f"assign {self.data} <- {x.data}")
 
@@ -285,7 +288,7 @@ class Tensor:
 
     # reduce ops
 
-    def _reduce(self, fxn:Type[Function], axis:int | tuple[int, ...] | None=None, keepdim=False) -> Tensor:
+    def _reduce(self, fxn:type[Function], axis:int | tuple[int, ...] | None=None, keepdim=False) -> Tensor:
         return _reduce(self, fxn, axis, keepdim)
 
     def sum(self, axis=None, keepdim=False): return tsum(self, axis, keepdim)
