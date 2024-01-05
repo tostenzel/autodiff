@@ -1,6 +1,7 @@
 """Contains typical neural network operations for processing tensors."""
 
 from __future__ import annotations
+from typing import Optional
 import math
 
 from edugrad.dtypes import dtypes
@@ -229,6 +230,13 @@ def linear(tensor: Tensor, weight: Tensor, bias: Tensor | None = None):
 
     # Add bias if provided
     return x.add(bias) if bias is not None else x
+
+
+def batchnorm(tensor: Tensor, weight:Optional[Tensor], bias:Optional[Tensor], mean:Tensor, invstd:Tensor) -> Tensor:
+    x = (tensor - mean.reshape(shape=[1, -1, 1, 1]))
+    if weight: x = x * weight.reshape(shape=[1, -1, 1, 1])
+    ret = x.mul(invstd.reshape(shape=[1, -1, 1, 1]) if len(invstd.shape) == 1 else invstd)
+    return (ret + bias.reshape(shape=[1, -1, 1, 1])) if bias else ret
 
 
 def binary_crossentropy(tensor: Tensor, y: Tensor) -> Tensor:

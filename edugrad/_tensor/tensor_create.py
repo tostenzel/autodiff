@@ -139,3 +139,10 @@ def scaled_uniform(*shape, **kwargs) -> Tensor:
     from edugrad.tensor import Tensor
 
     return Tensor.uniform(*shape, low=-1.0, high=1.0, **kwargs).mul(prod(shape) ** -0.5)
+
+
+def kaiming_uniform(*shape, a:float = 0.01, **kwargs) -> Tensor:
+    from edugrad.tensor import Tensor
+
+    bound = math.sqrt(3.0) * math.sqrt(2.0 / (1 + a ** 2)) / math.sqrt(prod(shape[1:]))
+    return Tensor.uniform(*shape, low=-bound, high=bound, **kwargs)
