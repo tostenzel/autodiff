@@ -1,5 +1,8 @@
-"""This module implements broadcasted binary operations for Tensors, providing element-wise arithmetic operations that
-support broadcasting for tensors of different shapes."""
+"""Consists broadcasted binary operations for Tensors.
+
+These operations provide element-wise arithmetic operations that support broadcasting for tensors of different shapes.
+
+"""
 from __future__ import annotations
 
 import math
@@ -66,8 +69,7 @@ def _broadcasted(tensor: Tensor, y: Tensor | float, reverse: bool = False) -> tu
 
 
 def _to_float(tensor: Tensor, x: Tensor | float):
-    """Converts a tensor to float32 dtype if it is not already a Tensor and if it is suitable for certain operations
-    where float32 dtype is required.
+    """Converts a tensor to float32 dtype.
 
     Args:
         tensor (Tensor): The reference tensor to check compatibility.
@@ -81,6 +83,7 @@ def _to_float(tensor: Tensor, x: Tensor | float):
 
     return (
         x.data.base.op.arg
+        # tensor is not already a Tensor and suitable for certain operations where float32 dtype is required.
         if isinstance(x, Tensor)
         and x.data.is_unrealized_contiguous_const()
         and not x.requires_grad
@@ -139,7 +142,7 @@ def pow(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
 
     x = tensor._to_float(x)
     if x.__class__ is not Tensor and not reverse:
-        # simple pow identities
+        # Simple pow identities
         if x < 0:
             return tensor.reciprocal().pow(-x)
         if x == 3.0:
@@ -153,7 +156,7 @@ def pow(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
     if not isinstance(x, Tensor) and reverse and x > 0:
         return tensor.mul(math.log(x)).exp()
     ar = tensor.abs().log().mul(x).exp() if not reverse or isinstance(x, Tensor) else tensor.mul(math.log(abs(x))).exp()
-    # correct sign of negative numbers raised to a power (cos has a period of 2pi so we use it here to get the oddness of the power)
+    # Correct sign of negative numbers raised to a power (cos has a period of 2pi so we use it here to get the oddness of the power)
     sign = (
         (x * math.pi).cos()
         if isinstance(x, Tensor)
@@ -161,16 +164,16 @@ def pow(tensor: Tensor, x: Tensor | float, reverse=False) -> Tensor:
         if not reverse
         else (tensor * math.pi).cos()
     )
-    # we only need to correct the sign if the base is negative
+    # We only need to correct the sign if the base is negative
     base_sign = (
         (tensor.sign() if not reverse else x.sign() if isinstance(x, Tensor) else math.copysign(1, x)) - 1
     ) / -2
-    # we need 0 to be positive so we need to correct base_sign when the base is 0
+    # We need 0 to be positive so we need to correct base_sign when the base is 0
     base_sign = base_sign - (
         1.5
         * (1 - (tensor.sign().abs() if not reverse else x.sign().abs() if isinstance(x, Tensor) else abs(int(bool(x)))))
     )
-    # inject nan if the base is negative and the power is not an integer
+    # Inject nan if the base is negative and the power is not an integer
     to_nan = (
         ((x - x.trunc()) * 1e10).abs().clip(0, 1)
         if isinstance(x, Tensor)

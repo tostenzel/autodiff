@@ -1,4 +1,4 @@
-"""Contains helper functions and DEBUG integer for verbose debugging used throughout the package."""
+"""Contains helper functions, a shape_int type and a DEBUG integer for verbose debugging used throughout the package."""
 
 from typing import Union, Tuple, Iterator, Any
 import os
