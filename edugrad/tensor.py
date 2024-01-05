@@ -11,7 +11,8 @@ The high-level ops support many things that you could expect from a tensor libra
 from __future__ import annotations
 import time
 import math
-from typing import ClassVar, Sequence, Any, Type
+from functools import reduce
+from typing import ClassVar, Sequence, Any, Type, Optional, List, Callable
 
 import numpy as np
 
@@ -25,11 +26,11 @@ from edugrad.autograd import backward, collect_backward_graph
 
 # fmt: off
 from edugrad._tensor.tensor_create import _loadop, empty, manual_seed, rand
-from edugrad._tensor.tensor_create import randn, randint, normal, uniform, scaled_uniform
+from edugrad._tensor.tensor_create import randn, randint, normal, uniform, scaled_uniform, kaiming_uniform
 from edugrad._tensor.tensor_create import full, zeros, ones, arange, eye, full_like, zeros_like, ones_like
 from edugrad._tensor.tensor_combine_segment import cat, stack, repeat, chunk
 from edugrad._tensor.tensor_reshape import reshape, expand, permute, flip, shrink, pad, pad2d, transpose, _flatten, squeeze, unsqueeze
-from edugrad._tensor.tensor_nn import _pool, avg_pool2d, max_pool2d, conv2d, linear, binary_crossentropy, binary_crossentropy_logits, sparse_categorical_crossentropy
+from edugrad._tensor.tensor_nn import _pool, avg_pool2d, max_pool2d, conv2d, linear, binary_crossentropy, binary_crossentropy_logits, sparse_categorical_crossentropy, batchnorm
 from edugrad._tensor.tensor_index_slice import __getitem__, __setitem__, tslice, gather
 from edugrad._tensor.tensor_broadcasted_binary_mlops import _broadcasted, _to_float, add, sub, mul, div, pow, matmul, maximum, minimum, where
 from edugrad._tensor.tensor_reduce import _reduce, tsum, tmax, tmin, mean, std, _softmax, softmax, log_softmax, argmax, argmin
@@ -202,6 +203,11 @@ class Tensor:
     @staticmethod
     def scaled_uniform(*shape, **kwargs) -> Tensor: return scaled_uniform(*shape, **kwargs)
 
+    # https://pytorch.org/docs/stable/_modules/torch/nn/init.html#kaiming_uniform_
+    @staticmethod
+    def kaiming_uniform(*shape, a:float = 0.01, **kwargs) -> Tensor:
+        return kaiming_uniform(*shape, a=a, **kwargs)
+
     def multinomial(self:Tensor, num_samples:int = 1, replacement:bool = False) -> Tensor:
         assert 1 <= self.ndim <= 2 and num_samples > 0, f"{self.ndim=} must be 1 or 2 dim, {num_samples=} must be positive"
         assert replacement or num_samples == 1, "no replacement only supports num_samples = 1"
@@ -296,6 +302,8 @@ class Tensor:
     def conv2d(self, weight:Tensor, bias:Tensor | None=None, groups=1, stride=1, dilation=1, padding=0) -> Tensor:
         return conv2d(self, weight, bias, groups, stride, dilation, padding)
 
+    def batchnorm(self, weight:Optional[Tensor], bias:Optional[Tensor], mean:Tensor, invstd:Tensor) -> Tensor:
+        return batchnorm(self, weight, bias, mean, invstd)
     # ------------------------------------------------------------------------------------------------------------------
 
     def dot(self, w:Tensor) -> Tensor:
@@ -328,12 +336,15 @@ class Tensor:
     def relu(self): return function.Relu.apply(self)
     def sigmoid(self): return function.Sigmoid.apply(self)
     def sqrt(self): return function.Sqrt.apply(self)
+    def rsqrt(self): return self.reciprocal().sqrt()
     def sin(self): return function.Sin.apply(self)
     def cos(self): return ((math.pi/2)-self).sin()
 
-    # math functions (unary) skipped
+    # math functions (unary)
+    def reciprocal(self): return 1.0/self
 
-    # activation functions (unary) skipped
+
+    # activation functions (unary)
     def elu(self, alpha=1.0): return self.relu() - alpha*(1-self.exp()).relu()
     # ------------------------------------------------------------------------------------------------------------------
     # tensor_bradcasted_binary_mlops.py
@@ -391,6 +402,8 @@ class Tensor:
     # functional nn ops
 
     def linear(self, weight:Tensor, bias:Tensor | None=None): return linear(self, weight, bias)
+
+    def sequential(self, ll:List[Callable[[Tensor], Tensor]]): return reduce(lambda x,f: f(x), ll, self)
 
     def binary_crossentropy(self, y:Tensor) -> Tensor: return binary_crossentropy(self, y)
 
