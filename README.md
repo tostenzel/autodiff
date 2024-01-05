@@ -1,4 +1,4 @@
-![](/edugrad_header.png)
+![](/edugrad-header.png)
 
 ![test workflow badge](https://github.com/tostenzel/edugrad/actions/workflows/Tests.yaml/badge.svg)
 
