@@ -96,6 +96,7 @@ def pad(tensor: Tensor, arg: Tuple[Tuple[int, int] | None, ...], value: float) -
         value: The padding value.
 
     """
+    from edugrad.tensor import Tensor
     # Determine padding for each dimension, defaulting to (0, 0)
     pad_arg = tuple(x if x is not None else (0, 0) for x in arg)
     # Apply padding operation if necessary
