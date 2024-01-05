@@ -1,3 +1,5 @@
+"""Train a classifier to recognize the hand-written digit on gray-scale images. and evaluate the results."""
+
 import os
 import gzip
 

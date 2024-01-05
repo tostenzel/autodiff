@@ -1,4 +1,4 @@
-"""Contain the tensor class that can be used for building neural networks with forward and backward pass.
+"""Contains the tensor class that can be used for building neural networks with forward and backward pass.
 
 The module contains the "high-level ops". These are syntax sugar and built on top of the "mid-level ops" containing the
 the functions with forward and backward passes in Function.function which is build on top of the "low-level ops"
@@ -120,16 +120,25 @@ class Tensor:
     # ------------------------------------------------------------------------------------------------------------------
     # data handlers
 
-    def assign(self, x) -> Tensor:
-        # TODO: this is a hack for writing to DISK
-        if x.__class__ is not Tensor:
+    def assign(self, x: Any) -> Tensor:
+        """Assigns the value of another tensor or array to the current tensor.
+
+        This method is a workaround for writing to disk and is used for in-place modification of tensor data.
+        """
+        if not isinstance(x, Tensor):
+            # Convert x to a Tensor if it's not already one
             x = Tensor(x, dtype=self.dtype)
+
         assert self.shape == x.shape, f"assign shape mismatch {self.shape} != {x.shape}"
-        assert not x.requires_grad  # tensor requires_grad is okay?
+        assert not x.requires_grad  # Ensure x doesn't require gradient computation
+        
         if DEBUG >= 4:
             print(f"assign {self.data} <- {x.data}")
+
+        # If dtype matches and assignment is allowed, perform the assignment
         if self.dtype == x.dtype and self.data is not None and not getenv("DISALLOW_ASSIGN"):
             x.data.output_buffer = self.data
+
         self.data = x.data
         return self
 
@@ -202,13 +211,25 @@ class Tensor:
     @staticmethod
     def scaled_uniform(*shape, **kwargs) -> Tensor: return scaled_uniform(*shape, **kwargs)
 
-    def multinomial(self:Tensor, num_samples:int = 1, replacement:bool = False) -> Tensor:
+    def multinomial(self: Tensor, num_samples: int = 1, replacement: bool = False) -> Tensor:
+        """Draws samples from the multinomial distribution based on the probability values in the tensor."""
+        # Validate input dimensions and sample count
         assert 1 <= self.ndim <= 2 and num_samples > 0, f"{self.ndim=} must be 1 or 2 dim, {num_samples=} must be positive"
         assert replacement or num_samples == 1, "no replacement only supports num_samples = 1"
+
+        # If tensor is 1D, add a new dimension at the beginning
         weight = self.unsqueeze(0) if self.ndim == 1 else self
+
+        # Compute the cumulative distribution function (CDF) for the weights
         cdf = (cw := weight.cumsum(1)) / cw[:, -1].unsqueeze(1)
+
+        # Generate uniform random samples
         unif_samples = Tensor.rand(num_samples, cdf.shape[0], 1)
+
+        # Determine indices based on CDF
         indices = (unif_samples.expand((-1, -1, cdf.shape[1])) >= cdf).sum(2).permute((1, 0))
+
+        # If the original tensor was 1D, squeeze the resulting indices tensor
         return (indices.squeeze(0) if self.ndim == 1 else indices).cast(dtypes.int32)
 
     # ------------------------------------------------------------------------------------------------------------------

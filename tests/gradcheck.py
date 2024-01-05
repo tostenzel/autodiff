@@ -1,16 +1,36 @@
+"""Contains functions for computing the Jacobian and performing gradient checks."""
+
 import numpy as np
 from edugrad.tensor import Tensor
+from typing import Callable, List, Union
 
+def mask_like(like: np.ndarray, mask_inx: Union[int, List[int]], mask_value: float = 1.0) -> np.ndarray:
 
-def mask_like(like, mask_inx, mask_value=1.0):
+    """Creates a mask array that is like the input array but with specified values masked.
+
+    Args:
+        like (array): The array to mimic in terms of shape.
+        mask_inx (int or array-like): Indices to mask.
+        mask_value (float, optional): The value to set at the masked indices. Defaults to 1.0.
+
+    Returns:
+        array: Masked array with the same shape as `like`.
+    """
     mask = np.zeros_like(like).reshape(-1)
     mask[mask_inx] = mask_value
     return mask.reshape(like.shape)
 
+def jacobian(func: Callable, input: Tensor):
+    """Computes the Jacobian matrix for a function at a given input.
 
-def jacobian(func, input):
+    Args:
+        func: The function for which to compute the Jacobian.
+        input: The input tensor at which to evaluate the Jacobian.
+
+    Returns:
+        array: Jacobian matrix evaluated at the given input.
+    """
     output = func(input)
-
     ji = input.numpy().reshape(-1).shape[-1]
     jo = output.numpy().reshape(-1).shape[-1]
     J = np.zeros((jo, ji), dtype=np.float32)
@@ -19,8 +39,8 @@ def jacobian(func, input):
         input.grad = None
         output = func(input)
 
-        # edugrad doesn't support slicing, tiny-hack to select
-        # the needed scalar an backpropagate only through it
+        # edugrad doesn't support slicing, workaround to select
+        # the needed scalar and backpropagate only through it.
         o_scalar = Tensor(mask_like(output.numpy(), o, 1.0)).mul(output).sum()
         o_scalar.backward()
 
@@ -28,8 +48,17 @@ def jacobian(func, input):
             J[o, i] = grad
     return J
 
+def numerical_jacobian(func: Callable, input: Tensor, eps:float=1e-3):
+    """Computes an approximation of the Jacobian matrix using finite differences.
 
-def numerical_jacobian(func, input, eps=1e-3):
+    Args:
+        func: The function for which to approximate the Jacobian.
+        input: The input tensor at which to approximate the Jacobian.
+        eps: The epsilon for finite differences. Defaults to 1e-3.
+
+    Returns:
+        array: Approximated Jacobian matrix.
+    """
     output = func(input)
 
     ji = input.numpy().reshape(-1).shape[-1]
@@ -47,8 +76,19 @@ def numerical_jacobian(func, input, eps=1e-3):
         NJ[:, i] = grad_approx
     return NJ
 
+def gradcheck(func: Callable, input: Tensor, eps: float=1e-3, atol: float=1e-3, rtol: float=1e-3):
+    """Performs a gradient check by comparing the Jacobian to its numerical approximation.
 
-def gradcheck(func, input, eps=1e-3, atol=1e-3, rtol=1e-3):
+    Args:
+        func: The function for which to perform the gradient check.
+        input : The input tensor for the function.
+        eps: Epsilon for finite differences in numerical Jacobian. Defaults to 1e-3.
+        atol: Absolute tolerance for np.allclose. Defaults to 1e-3.
+        rtol: Relative tolerance for np.allclose. Defaults to 1e-3.
+
+    Returns:
+        bool: True if the computed Jacobian is close to its numerical approximation.
+    """
     NJ = numerical_jacobian(func, input, eps)
     J = jacobian(func, input)
     return np.allclose(J, NJ, atol=atol, rtol=rtol)

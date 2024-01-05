@@ -1,3 +1,9 @@
+"""Defines the allowed datatypes for intializing and casting Tensors.
+
+For simplicity we only use bool, int32 and float32. Note that after applying operations, the results are usually
+float32 (see `data.TensorData.elementwise()`).
+
+"""
 from typing import ClassVar, Dict, Optional, Final
 import numpy as np
 from dataclasses import dataclass

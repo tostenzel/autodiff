@@ -1,3 +1,5 @@
+"""Contains helper functions and DEBUG integer for verbose debugging used throughout the package."""
+
 from typing import Union, Tuple, Iterator, Any
 import os
 import functools
