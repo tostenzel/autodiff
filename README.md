@@ -35,6 +35,11 @@ relatively minor. The autograd mechanism is inspired by Andrej Karpathy's
 
 ## The Code
 
+In this section we look at how the code implements i.) the tensor operations and ii.) the autograd mechanism.
+
+- [I. Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py`) Operations](#i-low-level-data.py-mid-level-function.py-and-high-level-tensor.py-operations)
+- [II. Computational Graphs in edugrad: Forward and Backward Passes](#ii-computational-graphs-in-edugrad-forward-and-backward-passes)
+
 <p align="center">
 <img src="img/edugrad-code-i.png" alt="drawing" width="400"/>
 </p>
