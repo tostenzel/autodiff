@@ -1,4 +1,7 @@
-![](/edugrad-header.png)
+
+<p align="center">
+<img src="edugrad-header.png" alt="drawing" width="200"/>
+</p>
 
 **edugrad** is the most simple and accesible implementation of a deep learning framework. Its purpose is to reveal the
 core components of such libraries, explaining their functionality and underlying programming principles.
