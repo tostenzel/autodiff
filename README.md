@@ -1,7 +1,5 @@
 ![](/edugrad-header.png)
 
-![test workflow badge](https://github.com/tostenzel/edugrad/actions/workflows/Tests.yaml/badge.svg)
-
 
 **edugrad** is the most simple and minimalistic implementation of a deep learning framework. Its purpose is to demystify the core components of such libraries, explaining their functionality and underlying programming principles.
 
@@ -13,9 +11,14 @@
 
 Please note that while edugrad theoretically supports the implementation of any neural network model, it lacks the memory and computational optimizations found in more advanced frameworks. This design choice maximizes code readability but limits the framework's capability to smaller models.
 
+![test workflow badge](https://github.com/tostenzel/edugrad/actions/workflows/Tests.yaml/badge.svg)
+
+
 ## Code Structure
 
 ## Credits
+
+## Conceptual Explanations
 
 
 ## Installation
