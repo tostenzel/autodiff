@@ -22,56 +22,49 @@ but limits the framework's capability to smaller models.
 
 ![test workflow badge](https://github.com/tostenzel/edugrad/actions/workflows/Tests.yaml/badge.svg)
 
+
+## Installation
+
+```
+git clone https://github.com/tostenzel/edugrad
+cd edugrad
+```
+
+Set up environment in `edugrad/.env` and install requirements with conda from `environment.yaml`:
+
+```
+conda create --prefix .env
+conda activate .env/
+conda env update --file environment.yaml --prefix .env
+```
+
+Install edugrad from source in editable mode to enable absolute imports:
+
+```
+pip install -e .
+```
+
+Verify installation:
+
+```
+python applications/learn_mnist.py
+```
+
+
 ## Example
 
 ## The Code
 
 In this section we look at how the code implements i.) the tensor operations and ii.) the autograd mechanism.
 
-- [I. Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py`) Operations](#i-low-level-data.py-mid-level-function.py-and-high-level-tensor.py-operations)
-- [II. Computational Graphs in edugrad: Forward and Backward Passes](#ii-computational-graphs-in-edugrad-forward-and-backward-passes)
-
-<p align="center">
-<img src="img/edugrad-code-i.png" alt="drawing" width="400"/>
-</p>
-
-### 1. Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py`) Operations
-
-The computation processes are structured across different levels of operations, namely low-level, mid-level, and high-level operations. 
-
-#### 1. Low-Level Operations
-- **Module**: `data.py` (`TensorData` class)
-- **Purpose**: Execution of most basic tensor operations.
-- **Characteristics**:
-  - Implement elemental tensor operations like addition, multiplication, reshaping, etc.
-  - Immediate execution of operations using CPU, leveraging `numpy.array`'s capabilities. Using a different backend like PyTorch or Jax would only require reimpleneting 17 operations in the module (enumerated in `ops.py`).
-  - Operations at this level do not involve gradient computations or the autograd mechanism.
-  - Acts as the foundational building block for higher-level operations.
-
-#### 2. Mid-Level Operations
-- **Module**: `function.py` (Function class and its subclasses)
-- **Purpose**: Define differentiable functions that include both forward and backward computation logic.
-- **Characteristics**:
-  - Compose low-level ops from `data.py` to define more complex operations.
-  - Each operation (e.g., `Add`, `Mul`, `Sin`) encapsulates a forward pass and a corresponding backward pass for gradient computation.
-  - Serves as the backbone of edugrad's autograd system, allowing for automatic differentiation of different models defined with `edugrad.Tensor`.
-  - Mid-level operations are used as nodes to build complex computational graphs during the forward pass, storing necessary information for the backward pass.
-
-#### 3. High-Level Operations (High-Level Ops)
-- **Module**: `tensor.py` (`Tensor` class)
-- **Purpose**: Provide a user-friendly interface for tensor operations and enable building and training neural network models.
-- **Characteristics**:
-  - High-level abstraction for tensor operations.
-  - Utilizes mid-level ops from `function.py` to implement tensor methods and matrix algebra, enabling automatic differentiation without defining a backward function.
-  - Includes a broad range of operations commonly used in neural networks, like matrix multiplication, activation functions, and loss functions.
-  - Facilitates the construction and manipulation of larger computational graphs through tensor operations.
-  - This level is where most users interact with the edugrad library, building and training models using a familiar, PyTorch-like API.
+- [I. Computational Graphs in edugrad: Forward and Backward Passes](#ii-computational-graphs-in-edugrad-forward-and-backward-passes)
+- [II. Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py`) Operations](#i-low-level-data.py-mid-level-function.py-and-high-level-tensor.py-operations)
 
 <p align="center">
 <img src="img/edugrad-code-ii.png" alt="drawing" width="400"/>
 </p>
 
-### II. Computational Graphs in edugrad: Forward and Backward Passes
+### I. Computational Graphs in edugrad: Forward and Backward Passes
 
 In edugrad, the handling of the computational graph, particularly the relationships between nodes (tensors) during the forward and backward passes, is crucial for understanding how automatic differentiation works. Let's delve into the details of how the parents of each node are stored in `Tensor._ctx` and how they are utilized during the backward pass by functions in `autograd.py`.
 
@@ -111,7 +104,7 @@ z = x + y  # Internally calls Add.apply(x, y)
 During the backward pass, gradients are computed in reverse order, starting from the final output tensor and propagating through its ancestors.
 
 #### Backward Function in autograd.py:
-- When `backward()` is called on the final output tensor, usually the cost/loss, `autograd.ollect_backward_graph()` starts traversing the computational graph in reverse.
+- When `backward()` is called on the final output tensor, usually the cost/loss, `autograd.collect_backward_graph()` starts traversing the computational graph in reverse.
 - It begins with the tensor on which `backward()` was called and recursively visits the parent tensors stored in `_ctx`.
 
 #### Gradient Computation:
@@ -140,32 +133,42 @@ The essence of edugrad's approach lies in how it builds and navigates the comput
 - **Forward Pass**: Stores parent tensors in `_ctx` of each resultant tensor, encapsulating the operation and its inputs.
 - **Backward Pass**: Traverses the graph in reverse, using `_ctx` to access parent tensors (parent in forward pass direction) and compute gradients recursively. This elegantly ties together the chain of computations and their gradients, enabling efficient automatic differentiation.
 
-## Installation
 
-```
-git clone https://github.com/tostenzel/edugrad
-cd edugrad
-```
+<p align="center">
+<img src="img/edugrad-code-i.png" alt="drawing" width="400"/>
+</p>
 
-Set up environment in `edugrad/.env` and install requirements with conda from `environment.yaml`:
+### II. Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py`) Operations
 
-```
-conda create --prefix .env
-conda activate .env/
-conda env update --file environment.yaml --prefix .env
-```
+The computation processes are structured across different levels of operations, namely low-level, mid-level, and high-level operations. 
 
-Install edugrad from source in editable mode to enable absolute imports:
+#### 1. Low-Level Operations
+- **Module**: `data.py` (`TensorData` class)
+- **Purpose**: Execution of most basic tensor operations.
+- **Characteristics**:
+  - Implement elemental tensor operations like addition, multiplication, reshaping, etc.
+  - Immediate execution of operations using CPU, leveraging `numpy.array`'s capabilities. Using a different backend like PyTorch or Jax would only require reimpleneting 17 operations in the module (enumerated in `ops.py`).
+  - Operations at this level do not involve gradient computations or the autograd mechanism.
+  - Acts as the foundational building block for higher-level operations.
 
-```
-pip install -e .
-```
+#### 2. Mid-Level Operations
+- **Module**: `function.py` (Function class and its subclasses)
+- **Purpose**: Define differentiable functions that include both forward and backward computation logic.
+- **Characteristics**:
+  - Compose low-level ops from `data.py` to define more complex operations.
+  - Each operation (e.g., `Add`, `Mul`, `Sin`) encapsulates a forward pass and a corresponding backward pass for gradient computation.
+  - Serves as the backbone of edugrad's autograd system, allowing for automatic differentiation of different models defined with `edugrad.Tensor`.
+  - Mid-level operations are used as nodes to build complex computational graphs during the forward pass, storing necessary information for the backward pass.
 
-Verify installation:
-
-```
-python applications/learn_mnist.py
-```
+#### 3. High-Level Operations (High-Level Ops)
+- **Module**: `tensor.py` (`Tensor` class)
+- **Purpose**: Provide a user-friendly interface for tensor operations and enable building and training neural network models.
+- **Characteristics**:
+  - High-level abstraction for tensor operations.
+  - Utilizes mid-level ops from `function.py` to implement tensor methods and matrix algebra, enabling automatic differentiation without defining a backward function.
+  - Includes a broad range of operations commonly used in neural networks, like matrix multiplication, activation functions, and loss functions.
+  - Facilitates the construction and manipulation of larger computational graphs through tensor operations.
+  - This level is where most users interact with the edugrad library, building and training models using a familiar, PyTorch-like API.
 
 ## Credits
 
