@@ -1,11 +1,11 @@
 ![](/edugrad-header.png)
 
 
-**edugrad** is the most simple and minimalistic implementation of a deep learning framework. Its purpose is to demystify the core components of such libraries, explaining their functionality and underlying programming principles.
+**edugrad** is the most simple and minimalistic implementation of a deep learning framework. Its purpose is to reveal the core components of such libraries, explaining their functionality and underlying programming principles.
 
 ## Key Features
-- **Autograd Mechanism**: Features an automatic differentiation system for computing gradients, essential for training neural networks.
-- **Tensor Operations**: Implements fundamental tensor/matrix operations crucial for neural network computations in numpy.
+- **Autograd Mechanism**: Features an automatic differentiation system for computing gradients, essential for training different types of neural networks with only one framework.
+- **Tensor Operations**: Implements a tensor class that allows fundamental matrix operations  that are crucial for neural network computations. The backend is numpy.
 - **Simple Interface**: Offers an API that mirrors PyTorch
 - **Educational Code**: The code style and module structure are designed for ease of understanding, both programmatically and conceptually.
 
@@ -13,10 +13,11 @@ Please note that while edugrad theoretically supports the implementation of any 
 
 ![test workflow badge](https://github.com/tostenzel/edugrad/actions/workflows/Tests.yaml/badge.svg)
 
+## Credits
+
 
 ## Code Structure
 
-## Credits
 
 ## Conceptual Explanations
 
