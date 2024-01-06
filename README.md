@@ -55,7 +55,7 @@ python applications/learn_mnist.py
 
 ## The Code
 
-In this section we look at how the code implements i.) the tensor operations and ii.) the autograd mechanism.
+In this section we look at how the code implements i.) the autograd mechanism and ii.) the tensor operations.
 
 - [I. Computational Graphs in edugrad: Forward and Backward Passes](#ii-computational-graphs-in-edugrad-forward-and-backward-passes)
 - [II. Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py`) Operations](#i-low-level-data.py-mid-level-function.py-and-high-level-tensor.py-operations)
