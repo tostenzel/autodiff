@@ -28,14 +28,14 @@ but limits the framework's capability to smaller models.
 
 In this section we look at how the code implements i.) the tensor operations and ii.) the autograd mechanism.
 
-- [I. Low-level, Mid-level and High-level Operations](#i-low-level-mid-level-and-high-level-operations)
-- [II. Computational Graphs in Forward and Backward Passes](#ii-computational-graphs-in-forward-and-backward-passes)
+- [Low-level, Mid-level and High-level Operations](#iow-level-mid-level-and-high-level-operations)
+- [Computational Graphs in Forward and Backward Passes](#computational-graphs-in-forward-and-backward-passes)
 
 <p align="center">
-<img src="img/edugrad-code-i.png" alt="drawing" width="400"/>
+<img src="img/edugrad-backward.png" alt="drawing" width="400"/>
 </p>
 
-### I. Low-level, Mid-level and High-level Operations
+### Low-level, Mid-level and High-level Operations
 
 The computation processes are structured across different levels of operations, namely low-level (`data.py`), mid-level (`function.py`) and high-level (`tensor.py`)operations. 
 
@@ -49,7 +49,7 @@ The computation processes are structured across different levels of operations, 
   - Acts as the foundational building block for higher-level operations.
 
 #### 2. Mid-Level Operations
-- **Module**: `function.py` (Function class and its subclasses)
+- **Module**: `function.py` (`Function` class and its subclasses)
 - **Purpose**: Define differentiable functions that include both forward and backward computation logic.
 - **Characteristics**:
   - Compose low-level ops from `data.py` to define more complex operations.
@@ -68,10 +68,10 @@ The computation processes are structured across different levels of operations, 
   - This level is where most users interact with the edugrad library, building and training models using a familiar, PyTorch-like API.
 
 <p align="center">
-<img src="img/edugrad-code-ii.png" alt="drawing" width="400"/>
+<img src="img/edugrad-tensor.png" alt="drawing" width="400"/>
 </p>
 
-### II. Computational Graphs in Forward and Backward Passes
+### Computational Graphs in Forward and Backward Passes
 
 In edugrad, the handling of the computational graph, particularly the relationships between nodes (tensors) during the forward and backward passes, is crucial for understanding how automatic differentiation works. Let's delve into the details of how the parents of each node are stored in `Tensor._ctx` and how they are utilized during the backward pass by functions in `autograd.py`.
 
