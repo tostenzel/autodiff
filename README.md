@@ -1,6 +1,6 @@
 
 <p align="center">
-<img src="edugrad-header.png" alt="drawing" width="200"/>
+<img src="edugrad-header.png" alt="drawing" width="300"/>
 </p>
 
 **edugrad** is the most simple and accesible implementation of a deep learning framework. Its purpose is to reveal the
