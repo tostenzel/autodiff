@@ -1,7 +1,6 @@
 import numpy as np
-import unittest, copy
+import unittest
 from edugrad import Tensor
-from edugrad.dtypes import dtypes
 
 
 class TestZeroShapeTensor(unittest.TestCase):

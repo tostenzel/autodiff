@@ -11,7 +11,7 @@ The high-level ops support many things that you could expect from a tensor libra
 from __future__ import annotations
 import time
 import math
-from typing import ClassVar, Sequence, Any, Type
+from typing import ClassVar, Sequence, Any
 
 import numpy as np
 

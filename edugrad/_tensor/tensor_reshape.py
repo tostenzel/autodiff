@@ -1,7 +1,6 @@
 """Contains various tensor manipulation operations that can change the shape of a tensor."""
 
 from __future__ import annotations
-from typing import List, Tuple, Union
 
 from edugrad.helpers import argfix, prod, shape_int
 import edugrad.function as function

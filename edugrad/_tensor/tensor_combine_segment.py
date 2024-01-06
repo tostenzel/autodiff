@@ -61,8 +61,6 @@ def stack(tensors: list[Tensor], dim: int) -> Tensor:
         Tensor: A new tensor resulting from stacking the given tensors.
 
     """
-    from edugrad.tensor import Tensor
-
     # Unsqueeze the first tensor and prepare the rest.
     first = tensors[0].unsqueeze(dim)
     unsqueezed_tensors = [tensor.unsqueeze(dim) for tensor in tensors[1:]]
