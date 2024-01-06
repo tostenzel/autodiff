@@ -32,7 +32,7 @@ relatively minor. The autograd mechanism is inspired by Andrej Karpathy's
 
 ## Code Structure
 <p align="center">
-<img src="edugrad-dependencies.png" alt="drawing" width="175"/>
+<img src="edugrad-dependencies.png" alt="drawing" width="400"/>
 </p>
 
 
