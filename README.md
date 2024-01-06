@@ -57,7 +57,7 @@ The computation processes are structured across different levels of operations, 
   - Serves as the backbone of edugrad's autograd system, allowing for automatic differentiation of different models defined with `edugrad.Tensor`.
   - Mid-level operations are used as nodes to build complex computational graphs during the forward pass, storing necessary information for the backward pass.
 
-#### 3. High-Level Operations (High-Level Ops)
+#### 3. High-Level Operations
 - **Module**: `tensor.py` (`Tensor` class)
 - **Purpose**: Provide a user-friendly interface for tensor operations and enable building and training neural network models.
 - **Characteristics**:
