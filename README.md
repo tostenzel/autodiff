@@ -24,15 +24,6 @@ but limits the framework's capability to smaller models.
 
 ## Example
 
-## Credits
-
-Starting point of this project is George Hotz' [tinygrad](https://github.com/tinygrad/tinygrad/tree/master), see
-[license](https://github.com/tostenzel/edugrad/blob/24-write-readmemd-with-implementation-details/LICENSE). I removed
-features that did not align with edugrad's purpose, eliminated all optimizations, and adjusted the module structures and
-coding style, adding extensive explanations in docstrings and comments. My changes and additions to the shortened and refactored code are
-relatively minor. The autograd mechanism is inspired by Andrej Karpathy's
-[micrograd](https://github.com/karpathy/micrograd).
-
 ## The Code
 
 In this section we look at how the code implements i.) the tensor operations and ii.) the autograd mechanism.
@@ -149,8 +140,6 @@ The essence of edugrad's approach lies in how it builds and navigates the comput
 - **Forward Pass**: Stores parent tensors in `_ctx` of each resultant tensor, encapsulating the operation and its inputs.
 - **Backward Pass**: Traverses the graph in reverse, using `_ctx` to access parent tensors (parent in forward pass direction) and compute gradients recursively. This elegantly ties together the chain of computations and their gradients, enabling efficient automatic differentiation.
 
-## Conceptual Explanations
-
 ## Installation
 
 ```
@@ -177,3 +166,16 @@ Verify installation:
 ```
 python applications/learn_mnist.py
 ```
+
+## Credits
+
+Starting point of this project is George Hotz' [tinygrad](https://github.com/tinygrad/tinygrad/tree/master), see
+[license](https://github.com/tostenzel/edugrad/blob/24-write-readmemd-with-implementation-details/LICENSE). I removed
+features that did not align with edugrad's purpose, eliminated all optimizations, and adjusted the module structures and
+coding style, adding extensive explanations in docstrings and comments. My changes and additions to the shortened and refactored code are
+relatively minor. The autograd mechanism is inspired by Andrej Karpathy's
+[micrograd](https://github.com/karpathy/micrograd).
+
+## Deep Learning Blog
+
+edugrad is complemented by my Deep Learning Blog Series @ [tobiasstenzel.com/blog](https://www.tobiasstenzel.com/blog/tag/dl-fundamentals/) that explains the fundamental concepts of deep learning including backpropagation and automatic reverse-mode differentiation.
