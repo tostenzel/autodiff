@@ -1,9 +1,9 @@
-from typing import Sequence, Optional, Tuple, Union
+from typing import Sequence, Optional, Tuple
 from collections import defaultdict
 
 from edugrad.dtypes import dtypes
 from edugrad.helpers import shape_int
-from edugrad._tensor.tensor_reshape import pad, _flatten
+from edugrad._tensor.tensor_reshape import _flatten
 
 
 # ***** movement high level ops *****
@@ -169,8 +169,6 @@ def tslice(tensor: "Tensor", arg: Sequence[Optional[Tuple[int, shape_int]]], val
     - value (float): The padding value to be used if necessary.
 
     """
-    from edugrad.tensor import Tensor
-
     arg_ = tuple([a if a is not None else (0, s) for s, a in zip(tensor.shape, arg)])
     padding = tuple([(max(0, -p[0]), max(0, p[1] - tensor.shape[i])) for i, p in enumerate(arg_)])
     return tensor.pad(padding, value=value).shrink(

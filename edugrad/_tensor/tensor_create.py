@@ -9,7 +9,7 @@ from __future__ import annotations
 import time
 import math
 
-from typing import Optional, Any
+from typing import Any
 
 from edugrad.dtypes import DType, dtypes
 from edugrad.helpers import argfix, prod, shape_int

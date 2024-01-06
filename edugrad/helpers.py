@@ -4,7 +4,6 @@ from typing import Union, Tuple, Iterator, Any
 import os
 import functools
 from math import prod  # noqa: F401 # pylint:disable=unused-import
-from dataclasses import dataclass
 
 shape_int = int
 
