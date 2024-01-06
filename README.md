@@ -31,8 +31,10 @@ relatively minor. The autograd mechanism is inspired by Andrej Karpathy's
 [micrograd](https://github.com/karpathy/micrograd).
 
 ## Code Structure
+<p align="center">
+<img src="edugrad-dependencies.png" alt="drawing" width="175"/>
+</p>
 
-![](/edugrad-dependencies.png)
 
 
 ## Conceptual Explanations
