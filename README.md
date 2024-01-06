@@ -28,16 +28,16 @@ but limits the framework's capability to smaller models.
 
 In this section we look at how the code implements i.) the tensor operations and ii.) the autograd mechanism.
 
-- [I. Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py`) Operations](#i-low-level-data.py-mid-level-function.py-and-high-level-tensor.py-operations)
-- [II. Computational Graphs in edugrad: Forward and Backward Passes](#ii-computational-graphs-in-edugrad-forward-and-backward-passes)
+- [I. Low-level, Mid-level and High-level Operations](#i-low-level-mid-level-and-high-level-operations)
+- [II. Computational Graphs in Forward and Backward Passes](#ii-computational-graphs-in-forward-and-backward-passes)
 
 <p align="center">
 <img src="img/edugrad-code-i.png" alt="drawing" width="400"/>
 </p>
 
-### 1. Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py`) Operations
+### I. Low-level, Mid-level and High-level Operations
 
-The computation processes are structured across different levels of operations, namely low-level, mid-level, and high-level operations. 
+The computation processes are structured across different levels of operations, namely low-level (`data.py`), mid-level (`function.py`) and high-level (`tensor.py`)operations. 
 
 #### 1. Low-Level Operations
 - **Module**: `data.py` (`TensorData` class)
@@ -71,7 +71,7 @@ The computation processes are structured across different levels of operations, 
 <img src="img/edugrad-code-ii.png" alt="drawing" width="400"/>
 </p>
 
-### II. Computational Graphs in edugrad: Forward and Backward Passes
+### II. Computational Graphs in Forward and Backward Passes
 
 In edugrad, the handling of the computational graph, particularly the relationships between nodes (tensors) during the forward and backward passes, is crucial for understanding how automatic differentiation works. Let's delve into the details of how the parents of each node are stored in `Tensor._ctx` and how they are utilized during the backward pass by functions in `autograd.py`.
 
