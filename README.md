@@ -4,7 +4,7 @@
 </p>
 
 **edugrad** is the most simple and accesible implementation of a deep learning framework. Its purpose is to reveal the
-core components of such libraries, explaining their functionality and underlying programming principles.
+core components of such libraries.
 
 ## Key Features
 
@@ -29,7 +29,7 @@ but limits the framework's capability to smaller models.
 Starting point of this project is George Hotz' [tinygrad](https://github.com/tinygrad/tinygrad/tree/master), see
 [license](https://github.com/tostenzel/edugrad/blob/24-write-readmemd-with-implementation-details/LICENSE). I removed
 features that did not align with edugrad's purpose, eliminated all optimizations, and adjusted the module structures and
-coding style, adding extensive explanations in docstrings and comments. The changes and additions to the code are
+coding style, adding extensive explanations in docstrings and comments. My changes and additions to the shortened and refactored code are
 relatively minor. The autograd mechanism is inspired by Andrej Karpathy's
 [micrograd](https://github.com/karpathy/micrograd).
 
