@@ -33,12 +33,113 @@ coding style, adding extensive explanations in docstrings and comments. My chang
 relatively minor. The autograd mechanism is inspired by Andrej Karpathy's
 [micrograd](https://github.com/karpathy/micrograd).
 
-## Code Structure
+## The Code
 <p align="center">
 <img src="edugrad-dependencies.png" alt="drawing" width="400"/>
 </p>
 
+### Low-level (`data.py`), Mid-level (`function.py`) and High-level (`tensor.py) Operations
 
+The computation processes are structured across different levels of operations, namely low-level, mid-level, and high-level operations. 
+
+#### 1. Low-Level Operations
+- **Module**: `data.py` (TensorData class)
+- **Purpose**: Direct manipulation and execution of basic tensor operations.
+- **Characteristics**:
+  - Core tensor data manipulation using NumPy arrays.
+  - Implement elemental tensor operations like addition, multiplication, reshaping, etc.
+  - Immediate execution of operations using CPU, leveraging NumPy's capabilities. Using a different backend like PyTorch or Jax would only require reimpleneting 17 operations in the module.
+  - Operations at this level do not involve gradient computations or the autograd mechanism.
+  - Acts as the foundational building block for higher-level operations.
+
+#### 2. Mid-Level Operations
+- **Module**: `function.py` (Function class and its subclasses)
+- **Purpose**: Define differentiable functions that include both forward and backward computation logic.
+- **Characteristics**:
+  - Compose low-level ops from `data.py` to define more complex operations.
+  - Each operation (e.g., `Add`, `Mul`, `Sin`) encapsulates a forward pass and a corresponding backward pass for gradient computation.
+  - Serves as the backbone of edugrad's autograd system, allowing for automatic differentiation.
+  - Mid-level operations are used as nodes to build computational graphs during the forward pass, storing necessary information for the backward pass.
+
+#### 3. High-Level Operations (High-Level Ops)
+- **Module**: `tensor.py` (Tensor class)
+- **Purpose**: Provide a user-friendly interface for tensor operations and enable building and training neural network models.
+- **Characteristics**:
+  - High-level abstraction for tensor operations.
+  - Utilizes mid-level ops from `function.py` to implement tensor methods, enabling automatic differentiation without defining a backward function.
+  - Includes a broad range of operations commonly used in neural networks, like matrix multiplication, activation functions, and loss functions.
+  - Facilitates the construction and manipulation of larger computational graphs through tensor operations.
+  - This level is where most users interact with the edugrad library, building and training models using a familiar, PyTorch-like API.
+
+
+### Understanding Computational Graphs in edugrad: Forward and Backward Passes
+
+In edugrad, the handling of the computational graph, particularly the relationships between nodes (tensors) during the forward and backward passes, is crucial for understanding how automatic differentiation works. Let's delve into the details of how the parents of each node are stored in `Tensor._ctx` and how they are utilized during the backward pass by functions in `autograd.py`.
+
+#### Forward Pass: Storing Parent Nodes
+
+During the forward pass, when operations are performed on tensors, new tensors are created as a result of these operations. Each new tensor maintains a reference to its "parent" tensors – the tensors that were used to compute it. This reference is stored in a special attribute called `_ctx`.
+
+##### _ctx Attribute:
+
+- When an operation is performed on one or more tensors, an instance of the corresponding `Function` class (from `function.py`) is created. This instance represents the operation itself.
+- The `_ctx` attribute of the resultant tensor is set to this instance. It effectively becomes a context that encapsulates the operation and its input tensors.
+- The `Function` instance (context) stores the input tensors as parents. These are the tensors whose attributes were used to calculate the resultant tensor.
+
+##### Example of Forward Pass
+
+Consider an operation `z = x + y`, where `x` and `y` are tensors. The `Add` function from `function.py` is used:
+
+```python
+class Add(Function):
+    def forward(self, x: TensorData, y: TensorData) -> TensorData:
+        return x.elementwise(BinaryOps.ADD, y)
+
+    def backward(self, grad_output: TensorData) -> Tuple[Optional[TensorData], Optional[TensorData]]:
+        return grad_output if self.needs_input_grad[0] else None, grad_output if self.needs_input_grad[1] else None
+```
+
+When z is computed:
+
+```python
+z = x + y  # Internally calls Add.apply(x, y)
+```
+
+`z._ctx` is set to an instance of `Add`, and this instance stores `x` and `y` as its parents.
+
+#### Backward Pass: Utilizing Parent Nodes
+
+During the backward pass, gradients are computed in reverse order, starting from the final output tensor and propagating through its ancestors.
+
+#### Backward Function in autograd.py:
+- When `backward()` is called on the final output tensor, `autograd.py` starts traversing the computational graph in reverse.
+- It begins with the tensor on which `backward()` was called and recursively visits the parent tensors stored in `_ctx`.
+
+#### Gradient Computation:
+- At each tensor, `backward()` calculates the gradient of the tensor with respect to each of its parents. This is done using the `backward` method of the `Function` instance stored in `_ctx`.
+- The gradients are then propagated to each parent tensor, where the process repeats.
+- If a parent tensor contributes to multiple children, its gradient is accumulated from each child.
+
+#### Example of Backward Pass
+
+Continuing with the `z = x + y` example:
+
+```python
+z.backward()
+```
+
+This call initiates the backward pass:
+
+- It computes the gradient of `z` (let's call it `dz`) and sets `z.grad` to `dz`.
+- Then, it uses `z._ctx` (which is an instance of `Add`) to compute the gradients with respect to `x` and `y` (`dx` and `dy`).
+- These gradients are then assigned to `x.grad` and `y.grad`.
+
+#### Summary
+
+The essence of edugrad's approach lies in how it builds and navigates the computational graph:
+
+- **Forward Pass**: Stores parent tensors in `_ctx` of each resultant tensor, encapsulating the operation and its inputs.
+- **Backward Pass**: Traverses the graph in reverse, using `_ctx` to access parent tensors (parent in forward pass direction) and compute gradients recursively. This elegantly ties together the chain of computations and their gradients, enabling efficient automatic differentiation.
 
 ## Conceptual Explanations
 
