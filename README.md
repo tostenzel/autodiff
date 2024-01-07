@@ -3,8 +3,10 @@
 <img src="img/edugrad-header.png" alt="drawing" width="300"/>
 </p>
 
-**edugrad** is the most simple and accesible implementation of a deep learning framework. Its purpose is to reveal the
+**edugrad** is a simple and accesible implementation of a deep learning framework. Its purpose is to reveal the
 core components of such libraries.
+
+Unlike other educational packages, edugrad supports a powerful tensor (n-dimensional matrix) class that can be used to implement modern neural networks. One lesson is how extensive this class is.
 
 ## Key Features
 
