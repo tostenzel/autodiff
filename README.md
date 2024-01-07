@@ -61,7 +61,7 @@ python applications/learn_mnist.py
 
 In this section we look at how the code implements i.) the tensor operations and ii.) the autograd mechanism.
 
-- [Low-level, Mid-level and High-level Operations](#iow-level-mid-level-and-high-level-operations)
+- [Low-level, Mid-level and High-level Operations](#low-level-mid-level-and-high-level-operations)
 - [Computational Graphs in Forward and Backward Passes](#computational-graphs-in-forward-and-backward-passes)
 
 
